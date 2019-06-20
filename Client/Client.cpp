@@ -17,19 +17,30 @@
 #define DEFAULT_BUFLEN 50
 #define DEFAULT_PORT "12345"
 
+
+struct mydata {
+	char msg[20];
+
+};
+
 int __cdecl main(int argc, char** argv)
 {
 	system("cls");
+	puts("Hello");
 	WSADATA wsaData;
 	SOCKET ConnectSocket = INVALID_SOCKET;
 	struct addrinfo
 		* result = NULL,
 		* ptr = NULL,
 		hints;
-	char sendbuf[DEFAULT_BUFLEN] = "Esto es una Prueba de Socket Client";
+	char sendbuf[DEFAULT_BUFLEN];
 	char recvbuf[DEFAULT_BUFLEN];
+	char buffer[DEFAULT_BUFLEN];
 	int iResult;
 	int recvbuflen = DEFAULT_BUFLEN;
+	
+
+
 
 	const char* mensajes[] = {
 		"ONE I", "TWO II", "tres III", "cuatro IV", "cinco V"
@@ -89,9 +100,30 @@ int __cdecl main(int argc, char** argv)
 		WSACleanup();
 		return 1;
 	}
-	Sleep(30000);
+	//Sleep(30000);
+	//recvbuf = (char *)"Hola";
+	
+	//memset(&sendbuf, 0, sizeof(sendbuf));//clear the buffer
+	//puts(recvbuf);
+	//char* c;
+	iResult = recv(ConnectSocket, recvbuf, sizeof(recvbuf), 0);
+
+	strcpy(buffer, recvbuf);
+	puts("=:=:=:=:=:=:=");
+
+	mydata a;
+	strcpy(a.msg, buffer);
+	puts(buffer);
+	puts("============");
+	printf("len = %d\n", recvbuflen);
+	Sleep(5000);
+	//getchar();
+	char msg[50];
+	int msg_length=0;
+
 	int i;
 	for (i = 0; i < 5; i++) {
+		Sleep(0);
 	// Send an initial buffer
 
 		memset(&sendbuf, 0, sizeof(sendbuf));//clear the buffer
@@ -104,11 +136,12 @@ int __cdecl main(int argc, char** argv)
 			WSACleanup();
 			return 1;
 		}
-		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-		puts("\nBegin:\n");
+		//iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+		iResult = recv(ConnectSocket, msg, msg_length, 0);
+		puts("\nBegin:");
 		puts(recvbuf);
-		puts("\n:END\n");
-		Sleep(5000);
+		puts(":END\n");
+		
 	}
 	
 
@@ -126,7 +159,8 @@ int __cdecl main(int argc, char** argv)
 	// Receive until the peer closes the connection
 	int n = 0;
 	do {
-		printf("\n\n(%d)\n\n", ++n);
+		printf("Times: (%d)\n\n", ++n);
+		//puts("BYE.............");
 		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 
 		puts(recvbuf);

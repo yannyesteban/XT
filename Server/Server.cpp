@@ -59,10 +59,13 @@ int Server::Init() {
 	SOCKET s;
 
 	int MAXRECV = 1024;
-	
+	int step = 0;
 	char * buffer = (char*)malloc((MAXRECV + 1) * sizeof(char));
 	while (TRUE) {
 
+
+		//memset(&buffer, 0, MAXRECV);//clear the buffer
+		step++;
 		//clear the socket fd set
 		FD_ZERO(&readfds);
 
@@ -88,7 +91,8 @@ int Server::Init() {
 
 		//If something happened on the master socket , then its an incoming connection
 		if (FD_ISSET(master, &readfds)) {
-			//puts("C");
+			printf("\nSTEP=(%d)\n",step);
+			puts("Master OK");
 			if ((new_socket = accept(master, (struct sockaddr*) & address, (int*)& addrlen)) < 0) {
 				perror("accept");
 				exit(EXIT_FAILURE);
@@ -96,14 +100,24 @@ int Server::Init() {
 			//puts("D");
 			//inform user of socket number - used in send and receive commands
 			printf("New connection , socket fd is %d , ip is : %s , port : %d (?)\n", new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-			message = "(=yanny)\n";
+			//message = "START\0";
+
+			//strcpy(message, "START");
 			//send new connection greeting message
+
+			struct mydata a;
+			strcpy(a.msg, "bien");
+			send(new_socket, a.msg, sizeof(a.msg), 0);
+
 			if (send(new_socket, message, strlen(message), 0) != strlen(message)) {
 				perror("send failed");
 			}
-
-			puts("Welcome message sent successfully");
-
+			
+			//exit(0);
+			//puts("Welcome message sent successfully");
+			//puts("********************");
+			//printf("[%s]", message);
+			//puts("********************");
 			//add new socket to array of sockets
 			for (i = 0; i < max_clients; i++) {
 				if (clients[i] == 0) {
@@ -115,12 +129,10 @@ int Server::Init() {
 		}
 
 		//else its some IO operation on some other socket :)
-		for (i = 0; i < max_clients; i++)
-		{
+		for (i = 0; i < max_clients; i++) {
 			s = clients[i];
 			//if client presend in read sockets             
-			if (FD_ISSET(s, &readfds))
-			{
+			if (FD_ISSET(s, &readfds)) {
 				//get details of the client
 				getpeername(s, (struct sockaddr*) & address, (int*)& addrlen);
 
@@ -157,9 +169,10 @@ int Server::Init() {
 					buffer[valread] = '\0';
 					printf("%s:%d - [%s] \n", inet_ntoa(address.sin_addr), ntohs(address.sin_port), buffer);
 					//send(s, buffer, valread, 0);
-					message = "-QUE-\n\n";
-
-					send(s, message, strlen(message), 0);
+					//message = "-QUE-\n\n";
+					//Sleep(15000);
+					char msg2[] = "Interesante";
+					send(s, msg2, strlen(msg2), 0);
 				}
 			}
 		}

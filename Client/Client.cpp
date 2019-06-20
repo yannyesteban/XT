@@ -111,12 +111,24 @@ int __cdecl main(int argc, char** argv)
 	strcpy(buffer, recvbuf);
 	puts("=:=:=:=:=:=:=");
 
-	mydata a;
-	strcpy(a.msg, buffer);
+	//mydata a;
+	//strcpy(a.msg, buffer);
 	puts(buffer);
 	puts("============");
+
+	iResult = recv(ConnectSocket, recvbuf, sizeof(recvbuf), 0);
+
+	strcpy(buffer, recvbuf);
+	puts("=:=:=:=:=:=:=");
+
+	//mydata a;
+	//strcpy(a.msg, buffer);
+	puts(buffer);
+	puts("============");
+
+
 	printf("len = %d\n", recvbuflen);
-	Sleep(5000);
+	//Sleep(5000);
 	//getchar();
 	char msg[50];
 	int msg_length=0;

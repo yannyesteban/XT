@@ -108,7 +108,7 @@ int Server::Init() {
 			struct mydata a;
 			strcpy(a.msg, "bien");
 			send(new_socket, a.msg, sizeof(a.msg), 0);
-
+			Sleep(15000);
 			if (send(new_socket, message, strlen(message), 0) != strlen(message)) {
 				perror("send failed");
 			}

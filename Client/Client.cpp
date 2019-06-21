@@ -6,7 +6,7 @@
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+#include "Counter.h"
 
 // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
 #pragma comment (lib, "Ws2_32.lib")
@@ -18,6 +18,11 @@
 #define DEFAULT_PORT "12345"
 
 
+
+void imp() {
+
+	puts("hola");
+}
 struct mydata {
 	char msg[20];
 
@@ -26,6 +31,26 @@ struct mydata {
 int __cdecl main(int argc, char** argv)
 {
 	system("cls");
+
+	/*
+	Counter C2;
+
+	C2.init(800);
+	C2.F = &imp;
+	//Sleep(2000);
+
+	int j = 0;
+	while (j < 10) {
+		//printf("%d\n", C2.getDiff());
+		if (C2.ready()) {
+			j++;
+		}
+
+	}
+	puts("end");
+	//int rr = C2.ready();
+	//printf("%d", rr);
+	exit(0);*/
 	puts("Hello");
 	WSADATA wsaData;
 	SOCKET ConnectSocket = INVALID_SOCKET;
@@ -100,12 +125,30 @@ int __cdecl main(int argc, char** argv)
 		WSACleanup();
 		return 1;
 	}
+	/*
+	char MM[] = "Client ONE";
+	memset(&sendbuf, 0, sizeof(sendbuf));//clear the buffer
+	strcpy(sendbuf, MM);
+	//iResult = send(ConnectSocket,  mensajes[i], 10, 0);
+	iResult = send(ConnectSocket, sendbuf, (int)strlen(sendbuf), 0);
+	if (iResult == SOCKET_ERROR) {
+		printf("send failed with error: %d\n", WSAGetLastError());
+		closesocket(ConnectSocket);
+		WSACleanup();
+		return 1;
+	}*/
+
+
 	//Sleep(30000);
 	//recvbuf = (char *)"Hola";
 	
 	//memset(&sendbuf, 0, sizeof(sendbuf));//clear the buffer
 	//puts(recvbuf);
 	//char* c;
+
+	//Sleep(10000);
+
+	/*
 	iResult = recv(ConnectSocket, recvbuf, sizeof(recvbuf), 0);
 
 	strcpy(buffer, recvbuf);
@@ -115,27 +158,31 @@ int __cdecl main(int argc, char** argv)
 	//strcpy(a.msg, buffer);
 	puts(buffer);
 	puts("============");
-
+	Sleep(1000);
 	iResult = recv(ConnectSocket, recvbuf, sizeof(recvbuf), 0);
+	if (iResult > 0) {
+		strcpy(buffer, recvbuf);
+		puts("=:=:=:=:=:=:=");
 
-	strcpy(buffer, recvbuf);
-	puts("=:=:=:=:=:=:=");
+		//mydata a;
+		//strcpy(a.msg, buffer);
+		puts(buffer);
+		puts("============");
+	}
+	
+	*/
 
-	//mydata a;
-	//strcpy(a.msg, buffer);
-	puts(buffer);
-	puts("============");
-
-
-	printf("len = %d\n", recvbuflen);
-	//Sleep(5000);
+	//printf("len = %d\n", recvbuflen);
+	//Sleep(20000);
 	//getchar();
 	char msg[50];
 	int msg_length=0;
 
 	int i;
+
+	mydata k;
 	for (i = 0; i < 5; i++) {
-		Sleep(0);
+		Sleep(1000);
 	// Send an initial buffer
 
 		memset(&sendbuf, 0, sizeof(sendbuf));//clear the buffer
@@ -149,11 +196,14 @@ int __cdecl main(int argc, char** argv)
 			return 1;
 		}
 		//iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-		iResult = recv(ConnectSocket, msg, msg_length, 0);
+
+		/*
+		iResult = recv(ConnectSocket, k.msg, sizeof(k.msg), 0);
 		puts("\nBegin:");
-		puts(recvbuf);
+		//strcpy(k.msg, msg);
+		puts(k.msg);
 		puts(":END\n");
-		
+		*/
 	}
 	
 

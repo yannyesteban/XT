@@ -1,4 +1,8 @@
 #include "Server.h"
+#include <time.h>
+#include<sys/timeb.h>
+
+
 #define XT_SERVER_MAX_CLIENTS 30
 
 Server::Server(XTServerInfo  _info) {
@@ -12,6 +16,7 @@ Server::Server(XTServerInfo  _info) {
 
 int Server::Init() {
 	system("cls");
+	
 	printf("\nInitialising Winsock...");
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
@@ -79,7 +84,7 @@ int Server::Init() {
 				FD_SET(s, &readfds);
 			}
 		}
-		puts("Waiting.....");
+		puts("Beging to Wait.....");
 		//wait for an activity on any of the sockets, timeout is NULL , so wait indefinitely
 		activity = select(0, &readfds, NULL, NULL, NULL);
 		printf("\n\nconected........");
@@ -91,6 +96,7 @@ int Server::Init() {
 
 		//If something happened on the master socket , then its an incoming connection
 		if (FD_ISSET(master, &readfds)) {
+			system("cls");
 			printf("\nSTEP=(%d)\n",step);
 			puts("Master OK");
 			if ((new_socket = accept(master, (struct sockaddr*) & address, (int*)& addrlen)) < 0) {
@@ -106,9 +112,10 @@ int Server::Init() {
 			//send new connection greeting message
 
 			struct mydata a;
-			strcpy(a.msg, "bien");
+			strcpy(a.msg, "Hi !!!");
 			send(new_socket, a.msg, sizeof(a.msg), 0);
-			Sleep(15000);
+			//Sleep(10000);
+			/**/
 			if (send(new_socket, message, strlen(message), 0) != strlen(message)) {
 				perror("send failed");
 			}
@@ -130,6 +137,7 @@ int Server::Init() {
 
 		//else its some IO operation on some other socket :)
 		for (i = 0; i < max_clients; i++) {
+			//puts("Step TWO");
 			s = clients[i];
 			//if client presend in read sockets             
 			if (FD_ISSET(s, &readfds)) {
@@ -167,12 +175,16 @@ int Server::Init() {
 				else {
 					//add null character, if you want to use with printf/puts or other string handling functions
 					buffer[valread] = '\0';
-					printf("%s:%d - [%s] \n", inet_ntoa(address.sin_addr), ntohs(address.sin_port), buffer);
+					
 					//send(s, buffer, valread, 0);
 					//message = "-QUE-\n\n";
 					//Sleep(15000);
-					char msg2[] = "Interesante";
-					send(s, msg2, strlen(msg2), 0);
+					mydata msg2;
+					strcpy(msg2.msg, buffer);
+					//send(s, msg2.msg, sizeof(msg2.msg), 0);
+					send(s, buffer, valread, 0);
+					printf("%s:%d - [%s] \n", inet_ntoa(address.sin_addr), ntohs(address.sin_port), msg2.msg);
+					//send(s, "QUE", sizeof(msg2.msg), 0);
 				}
 			}
 		}

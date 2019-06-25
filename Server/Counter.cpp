@@ -15,7 +15,7 @@ bool Counter::ready() {
 
 	if (getDiff() >= delta) {
 		ftime(&start);
-		//F();
+		F();
 		return true;
 	}
 

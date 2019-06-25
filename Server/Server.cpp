@@ -1,9 +1,41 @@
 #include "Server.h"
 #include <time.h>
-#include<sys/timeb.h>
+#include <sys/timeb.h>
+
+#include "Counter.h"
 
 
 #define XT_SERVER_MAX_CLIENTS 30
+
+struct CLIENT_INFO
+{
+	SOCKET hClientSocket;
+	struct sockaddr_in clientAddr;
+};
+BOOL WINAPI ClientThread(LPVOID lpData) {
+
+	Counter C2;
+
+	C2.init(1000);
+	puts("hilo");
+	int j = 0;
+	while (j < 20) {
+		
+		//printf("%d\n", C2.getDiff());
+		if (C2.ready()) {
+			printf(".");
+			//printf("%d\n", C2.getDiff());
+			//puts("(8)");
+			j++;
+		}
+
+	}
+	printf("End Thread!!!");
+
+	//puts("hola");
+
+	return true;
+}
 
 Server::Server(XTServerInfo  _info) {
 	info = _info;
@@ -17,7 +49,14 @@ Server::Server(XTServerInfo  _info) {
 int Server::Init() {
 	system("cls");
 	
-	printf("\nInitialising Winsock...");
+	HANDLE hClientThread;
+	DWORD dwThreadId;
+
+
+	hClientThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ClientThread,
+		NULL, 0, &dwThreadId);
+
+	printf("\nInitialising Winsock...(%d)", dwThreadId);
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
 		printf("Failed. Error Code : %d", WSAGetLastError());
@@ -189,7 +228,7 @@ int Server::Init() {
 			}
 		}
 	}
-
+	CloseHandle(hClientThread);
 	closesocket(s);
 	WSACleanup();
 

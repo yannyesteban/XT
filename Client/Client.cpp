@@ -107,6 +107,7 @@ int __cdecl main(int argc, char** argv)
 			WSACleanup();
 			return 1;
 		}
+		
 
 		// Connect to server.
 		iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
@@ -117,7 +118,16 @@ int __cdecl main(int argc, char** argv)
 		}
 		break;
 	}
-	
+	/*
+
+	u_long iMode = 0;
+	iResult = ioctlsocket(ConnectSocket, FIONBIO, &iMode);
+	if (iResult != NO_ERROR) {
+		printf("ioctlsocket failed with error: %ld\n", iResult);
+
+
+	}
+*/
 	freeaddrinfo(result);
 
 	if (ConnectSocket == INVALID_SOCKET) {

@@ -3,7 +3,9 @@
 
 int main()
 {
-	std::cout << "XT Sevrver v1.0 !!!\n";
+	
+	system("cls");
+	std::cout << "XT Server v1.0 !!!\n";
 	ServerInfo info;
 	info.host = (char*)"127.0.0.1";
 	info.port = 12345;

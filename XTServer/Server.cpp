@@ -116,8 +116,8 @@ void Server::_listen() {
 
 		//If something happened on the master socket , then its an incoming connection
 		if (FD_ISSET(master, &readfds)) {
-			system("cls");
-			printf("\nSTEP=(%d)\n", step);
+			//system("cls");
+			//printf("\nSTEP=(%d)\n", step);
 			puts("Master OK");
 			if ((new_socket = accept(master, (struct sockaddr*) & address, (int*)& addrlen)) < 0) {
 				perror("accept");

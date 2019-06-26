@@ -1,81 +1,49 @@
 #include "Server.h"
-#include <time.h>
-#include <sys/timeb.h>
-#include <stdint.h>
-#include "Counter.h"
 
-
-#define XT_SERVER_MAX_CLIENTS 30
-
-struct CLIENT_INFO
-{
-	SOCKET hClientSocket;
-	struct sockaddr_in clientAddr;
-};
-BOOL WINAPI ClientThread(LPVOID lpData) {
-
-	Counter C2;
-
-	C2.init(1000);
-	puts("hilo");
-	int j = 0;
-	while (j < 20) {
-		
-		//printf("%d\n", C2.getDiff());
-		if (C2.ready()) {
-			printf(".");
-			//printf("%d\n", C2.getDiff());
-			//puts("(8)");
-			j++;
-		}
-
-	}
-	printf("End Thread!!!");
-
-	//puts("hola");
-
-	return true;
-}
-
-Server::Server(XTServerInfo  _info) {
-	info = _info;
-	max_clients = info.max_clients;
-	int i;
-	for (i = 0; i < max_clients; i++) {
-		clients[i] = 0;
-	}
-}
-
-int Server::Init() {
-	system("cls");
+Server::Server(ServerInfo _info): Info(_info) {
 	
-	HANDLE hClientThread;
-	DWORD dwThreadId;
+	max_clients = Info.max_clients;
+	
+}
 
+void Server::init() {
+	_startUp();
+	_createSocket();
+	_bing();
+	_listen();
+}
 
-	hClientThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ClientThread,
-		NULL, 0, &dwThreadId);
+void Server::setOptions() {
+}
 
-	printf("\nInitialising Winsock...(%d)", dwThreadId);
-	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
-	{
+void Server::start() {
+}
+
+void Server::end() {
+}
+
+void Server::_startUp() {
+	puts("startUp");
+	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
 		printf("Failed. Error Code : %d", WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
+}
 
-	//printf("Initialised.\n");
-
-	//Create a socket
-	if ((master = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
-	{
+void Server::_createSocket() {
+	puts("createSocket");
+	if ((master = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) {
 		printf("Could not create socket : %d", WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
-	struct sockaddr_in server, address;
+}
+
+void Server::_bing() {
+	puts("Bing");
 	//Prepare the sockaddr_in structure
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons(info.port);
+	server.sin_port = htons(Info.port);
 
 
 	//Bind
@@ -83,12 +51,12 @@ int Server::Init() {
 		printf("Bind failed with error code : %d", WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
-	
+}
 
-	//Listen to incoming connections
-	listen(master, 3);
-
-	//puts("Bind done 2");
+void Server::_listen() {
+	puts("Listen");
+	int h = listen(master, 3);
+	printf("es error %d\n\n\n", h);
 
 	//Accept and incoming connection
 	//puts("Waiting for incoming connections...");
@@ -100,23 +68,33 @@ int Server::Init() {
 	int valread;
 	int i;
 	fd_set readfds;
-	fd_set writefds;
+	//fd_set writefds;
 	SOCKET s;
 
 	int MAXRECV = 1024;
 	int step = 0;
-	char * buffer = (char*)malloc((MAXRECV + 1) * sizeof(char));
-	FILE ff;
+	char* buffer = (char*)malloc((MAXRECV + 1) * sizeof(char));
+	
+	
+	for (i = 0; i < max_clients; i++) {
+		clients[i] = 0;
+	}
+
 	while (TRUE) {
 
 
 		//memset(&buffer, 0, MAXRECV);//clear the buffer
 		step++;
 		//clear the socket fd set
+		
 		FD_ZERO(&readfds);
-		FD_ZERO(&writefds);
+		//FD_ZERO(&writefds);
 		//add master socket to fd set
+		
 		FD_SET(master, &readfds);
+		//FD_SET(master, &writefds);
+		//writefds = NULL;
+		
 		//FD_SET(0, &writefds);
 		//add child sockets to fd set
 		for (i = 0; i < max_clients; i++) {
@@ -125,9 +103,10 @@ int Server::Init() {
 				FD_SET(s, &readfds);
 			}
 		}
+		
 		puts("Beging to Wait.....");
 		//wait for an activity on any of the sockets, timeout is NULL , so wait indefinitely
-		activity = select(0, &readfds, &writefds, NULL, NULL);
+		activity = select(0, &readfds, NULL, NULL, NULL);
 		printf("\n\nconected........");
 		//system("cls");
 		if (activity == SOCKET_ERROR) {
@@ -138,7 +117,7 @@ int Server::Init() {
 		//If something happened on the master socket , then its an incoming connection
 		if (FD_ISSET(master, &readfds)) {
 			system("cls");
-			printf("\nSTEP=(%d)\n",step);
+			printf("\nSTEP=(%d)\n", step);
 			puts("Master OK");
 			if ((new_socket = accept(master, (struct sockaddr*) & address, (int*)& addrlen)) < 0) {
 				perror("accept");
@@ -160,7 +139,7 @@ int Server::Init() {
 			if (send(new_socket, message, strlen(message), 0) != strlen(message)) {
 				perror("send failed");
 			}
-			
+
 			//exit(0);
 			//puts("Welcome message sent successfully");
 			//puts("********************");
@@ -198,8 +177,7 @@ int Server::Init() {
 						//Close the socket and mark as 0 in list for reuse
 						closesocket(s);
 						clients[i] = 0;
-					}
-					else {
+					} else {
 						printf("recv failed with error code : %d", error_code);
 					}
 				}
@@ -216,7 +194,7 @@ int Server::Init() {
 				else {
 					//add null character, if you want to use with printf/puts or other string handling functions
 					buffer[valread] = '\0';
-					
+
 					//send(s, buffer, valread, 0);
 					//message = "-QUE-\n\n";
 					//Sleep(15000);
@@ -230,14 +208,10 @@ int Server::Init() {
 			}
 		}
 	}
-	CloseHandle(hClientThread);
+	//CloseHandle(hClientThread);
 	closesocket(s);
 	WSACleanup();
 
 
-	return 1;
-}
-
-int Server::End() {
-	return 1;
+	
 }

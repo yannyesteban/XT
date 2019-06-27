@@ -151,10 +151,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Server\Counter.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="XTClient.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Server\Counter.h" />
     <ClInclude Include="Client.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

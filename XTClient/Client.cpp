@@ -6,7 +6,7 @@ Client::Client(ClientInfo _info):Info(_info) {
 void Client::init() {
 	_startUp();
 	_createSocket();
-
+	_listen();
 	closesocket(master);
 	WSACleanup();
 }
@@ -73,6 +73,13 @@ int Client::_createSocket() {
 		WSACleanup();
 		return 1;
 	}
+	InfoSocket Info;
+
+	Info.socket = master;
+	//Info.tag = (char[10])"WHAT";
+	_thread(&Info);
+
+	return 1;
 	//Sleep(1000);
 	char sendbuf[50];
 	
@@ -91,7 +98,7 @@ int Client::_createSocket() {
 		"ONE I", "TWO II", "tres III", "cuatro IV", "cinco V"
 	};
 
-	InfoSocket Info;
+	//InfoSocket Info;
 
 	Info.socket = master;
 	//Info.tag = (char[10])"WHAT";
@@ -179,6 +186,29 @@ int Client::_createSocket() {
 	puts("cool");
 	//Sleep(20000);
 	return 0;
+}
+
+int Client::_listen() {
+
+	char recvbuf[100];
+	int recvbuflen = 100;
+	int iResult;
+	do {
+		
+		//puts("BYE.............");
+		memset(&recvbuf, 0, sizeof(recvbuf));//clear the buffer
+		iResult = recv(master, recvbuf, recvbuflen, 0);
+
+		puts(recvbuf);
+		if (iResult > 0)
+			printf("Bytes received: %d\n", iResult);
+		else if (iResult == 0)
+			printf("Connection closed\n");
+		else
+			printf("recv failed with error: %d\n", WSAGetLastError());
+		
+	} while (iResult > 0);
+	return 1;
 }
 
 BOOL WINAPI ClientThread(LPVOID lpData) {

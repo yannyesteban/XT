@@ -23,7 +23,7 @@ void Server::end() {
 }
 
 void Server::_startUp() {
-	puts("startUp");
+	//puts("startUp");
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
 		printf("Failed. Error Code : %d", WSAGetLastError());
 		exit(EXIT_FAILURE);
@@ -31,7 +31,7 @@ void Server::_startUp() {
 }
 
 void Server::_createSocket() {
-	puts("createSocket");
+	//puts("createSocket");
 	if ((master = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) {
 		printf("Could not create socket : %d", WSAGetLastError());
 		exit(EXIT_FAILURE);
@@ -39,7 +39,7 @@ void Server::_createSocket() {
 }
 
 void Server::_bing() {
-	puts("Bing");
+	//puts("Bing");
 	//Prepare the sockaddr_in structure
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
@@ -72,7 +72,7 @@ void Server::_listen() {
 	SOCKET s;
 
 	int MAXRECV = 1024;
-	int step = 0;
+	
 	char* buffer = (char*)malloc((MAXRECV + 1) * sizeof(char));
 	
 	
@@ -81,21 +81,10 @@ void Server::_listen() {
 	}
 
 	while (TRUE) {
-
-
+		FD_ZERO(&readfds);//clear the socket fd set
+		FD_SET(master, &readfds);//add master socket to fd set
 		//memset(&buffer, 0, MAXRECV);//clear the buffer
-		step++;
-		//clear the socket fd set
 		
-		FD_ZERO(&readfds);
-		//FD_ZERO(&writefds);
-		//add master socket to fd set
-		
-		FD_SET(master, &readfds);
-		//FD_SET(master, &writefds);
-		//writefds = NULL;
-		
-		//FD_SET(0, &writefds);
 		//add child sockets to fd set
 		for (i = 0; i < max_clients; i++) {
 			s = clients[i];
@@ -104,10 +93,10 @@ void Server::_listen() {
 			}
 		}
 		
-		puts("Beging to Wait.....");
+		//puts("Beging to Wait.....");
 		//wait for an activity on any of the sockets, timeout is NULL , so wait indefinitely
 		activity = select(0, &readfds, NULL, NULL, NULL);
-		printf("\n\nconected........");
+		//printf("\n\nconected........");
 		//system("cls");
 		if (activity == SOCKET_ERROR) {
 			printf("select call failed with error code : %d", WSAGetLastError());
@@ -118,7 +107,7 @@ void Server::_listen() {
 		if (FD_ISSET(master, &readfds)) {
 			//system("cls");
 			//printf("\nSTEP=(%d)\n", step);
-			puts("Master OK");
+			//puts("Master OK");
 			if ((new_socket = accept(master, (struct sockaddr*) & address, (int*)& addrlen)) < 0) {
 				perror("accept");
 				exit(EXIT_FAILURE);
@@ -131,15 +120,18 @@ void Server::_listen() {
 			//strcpy(message, "START");
 			//send new connection greeting message
 
+			CallConection(master, new_socket);
+/*
+
 			struct mydata a;
 			strcpy(a.msg, "Hi !!!");
 			send(new_socket, a.msg, sizeof(a.msg), 0);
 			//Sleep(10000);
-			/**/
+			
 			if (send(new_socket, message, strlen(message), 0) != strlen(message)) {
 				perror("send failed");
 			}
-
+*/
 			//exit(0);
 			//puts("Welcome message sent successfully");
 			//puts("********************");
@@ -188,21 +180,20 @@ void Server::_listen() {
 					//Close the socket and mark as 0 in list for reuse
 					closesocket(s);
 					clients[i] = 0;
-				}
-
-				//Echo back the message that came in
-				else {
+				} else {//Echo back the message that came in
 					//add null character, if you want to use with printf/puts or other string handling functions
 					buffer[valread] = '\0';
 
+					//void (*CallConection)(SOCKET master, SOCKET client);
+					CallMsgReceived(master, s, buffer, valread);
 					//send(s, buffer, valread, 0);
 					//message = "-QUE-\n\n";
 					//Sleep(15000);
-					mydata msg2;
-					strcpy(msg2.msg, buffer);
+					//mydata msg2;
+					//strcpy(msg2.msg, buffer);
 					//send(s, msg2.msg, sizeof(msg2.msg), 0);
-					send(s, buffer, valread, 0);
-					printf("%s:%d - [%s] \n", inet_ntoa(address.sin_addr), ntohs(address.sin_port), msg2.msg);
+					//send(s, buffer, valread, 0);
+					printf("%s:%d - [%s] \n", inet_ntoa(address.sin_addr), ntohs(address.sin_port), buffer);
 					//send(s, "QUE", sizeof(msg2.msg), 0);
 				}
 			}

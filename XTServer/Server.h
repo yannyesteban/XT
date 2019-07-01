@@ -8,6 +8,12 @@
 #include <stdint.h>
 #pragma comment(lib, "ws2_32.lib") //Winsock Library
 
+
+struct InfoClient {
+	char device_id[10];
+
+};
+
 struct mydata {
 	char msg[20];
 
@@ -29,6 +35,8 @@ public:
 	void start();
 	void end();
 
+	void (*CallConection)(SOCKET master, SOCKET client);
+	void (*CallMsgReceived)(SOCKET master, SOCKET client, char * buffer, int valread);
 private:
 	WSADATA wsa;
 	SOCKET master;

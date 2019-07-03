@@ -105,42 +105,18 @@ void Server::_listen() {
 
 		//If something happened on the master socket , then its an incoming connection
 		if (FD_ISSET(master, &readfds)) {
-			//system("cls");
-			//printf("\nSTEP=(%d)\n", step);
-			//puts("Master OK");
 			if ((new_socket = accept(master, (struct sockaddr*) & address, (int*)& addrlen)) < 0) {
 				perror("accept");
 				exit(EXIT_FAILURE);
 			}
-			//puts("D");
 			//inform user of socket number - used in send and receive commands
 			printf("New connection , socket fd is %d , ip is : %s , port : %d (?)\n", new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-			//message = "START\0";
 
-			//strcpy(message, "START");
-			//send new connection greeting message
-
-			CallConection(master, new_socket);
-/*
-
-			struct mydata a;
-			strcpy(a.msg, "Hi !!!");
-			send(new_socket, a.msg, sizeof(a.msg), 0);
-			//Sleep(10000);
-			
-			if (send(new_socket, message, strlen(message), 0) != strlen(message)) {
-				perror("send failed");
-			}
-*/
-			//exit(0);
-			//puts("Welcome message sent successfully");
-			//puts("********************");
-			//printf("[%s]", message);
-			//puts("********************");
 			//add new socket to array of sockets
 			for (i = 0; i < max_clients; i++) {
 				if (clients[i] == 0) {
 					clients[i] = new_socket;
+					CallConection(master, new_socket);
 					printf("Adding to list of sockets at index %d \n", i);
 					break;
 				}
@@ -158,6 +134,8 @@ void Server::_listen() {
 
 				//Check if it was for closing , and also read the incoming message
 				//recv does not place a null terminator at the end of the string (whilst printf %s assumes there is one).
+				//memset(&buffer, 0, MAXRECV);//clear the buffer
+				
 				valread = recv(s, buffer, MAXRECV, 0);
 				//puts(buffer);
 				if (valread == SOCKET_ERROR) {
@@ -185,14 +163,49 @@ void Server::_listen() {
 					buffer[valread] = '\0';
 
 					//void (*CallConection)(SOCKET master, SOCKET client);
+					
+					/******************/
 					CallMsgReceived(master, s, buffer, valread);
+					/******************/
+					
 					//send(s, buffer, valread, 0);
 					//message = "-QUE-\n\n";
 					//Sleep(15000);
 					//mydata msg2;
 					//strcpy(msg2.msg, buffer);
 					//send(s, msg2.msg, sizeof(msg2.msg), 0);
-					//send(s, buffer, valread, 0);
+					/*
+					Keep_Alivestruct* st = (Keep_Alivestruct*)buffer;
+					if (st->Keep_Alive_Header == 55248) {
+						puts("si");
+						send(s, buffer, valread, 0);
+					} else {
+						puts("no");
+						send(s, buffer, valread, 0);
+					}
+					Sleep(1000);
+					*/
+					//send(*client, (char *)st, sizeof(st), 0);
+					//char buffer4[] = "$WP+GETLOCATION=0000,?";
+					//char buffer4[] = "$WP+TRACK=0000,?";
+					//send(s, (char*)buffer4, strlen(buffer4), 0);
+					/*
+					static BOOL band = true;
+
+					if (band) {
+						puts("track.....");
+						band = false;
+						char buffer5[] = "$WP+TRACK=0000,0,15,0,0,0,3,4,10";
+						send(s, (char*)buffer5, strlen(buffer5), 0);
+					}
+					*/
+
+					//Sleep(1000);
+					//send(*client, (char *)st, sizeof(st), 0);
+					//char buffer5[] = "$WP+GETLOCATION=0000,";
+					//send(s, (char*)buffer5, strlen(buffer5), 0);
+
+					//
 					printf("%s:%d - [%s] \n", inet_ntoa(address.sin_addr), ntohs(address.sin_port), buffer);
 					//send(s, "QUE", sizeof(msg2.msg), 0);
 				}

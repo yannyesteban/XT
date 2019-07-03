@@ -8,6 +8,12 @@
 #include <stdint.h>
 #pragma comment(lib, "ws2_32.lib") //Winsock Library
 
+typedef struct {
+	unsigned short Keep_Alive_Header;
+	unsigned short Keep_Alive_ID;
+	unsigned long Keep_Alive_Device_ID;
+} Keep_Alivestruct;
+
 
 struct InfoClient {
 	char device_id[10];

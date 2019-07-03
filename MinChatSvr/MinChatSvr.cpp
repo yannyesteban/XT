@@ -15,7 +15,7 @@ struct CLIENT_INFO
 };
 
 char szServerIPAddr[] = "127.0.0.1";     // Put here the IP address of the server
-int nServerPort = 12345;                    // The server port that will be used by
+int nServerPort = 3311;                    // The server port that will be used by
 											// clients to talk with the server
 
 bool InitWinSock2_0();
@@ -81,7 +81,7 @@ int __cdecl main(int argc, char** argv)
 		struct sockaddr_in clientAddr;
 		int nSize = sizeof(clientAddr);
 		puts("alpha");
-		hClientSocket = accept(hServerSocket, (struct sockaddr*) & clientAddr, &nSize);
+		hClientSocket = accept(hServerSocket, (struct sockaddr*) & clientAddr, (int *)&nSize);
 		puts("beta");
 		if (hClientSocket == INVALID_SOCKET)
 		{

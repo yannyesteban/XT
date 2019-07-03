@@ -51,7 +51,7 @@ private:
 	int _startUp();
 	int _createSocket();
 	int _listen();
-	int _thread(struct InfoSocket * INFO);
+	int _thread(struct InfoSocket INFO);
 
 
 	

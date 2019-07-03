@@ -73,11 +73,14 @@ int Client::_createSocket() {
 		WSACleanup();
 		return 1;
 	}
+
+	//return 1;
+
 	InfoSocket Info;
 
 	Info.socket = master;
 	//Info.tag = (char[10])"WHAT";
-	_thread(&Info);
+	_thread(Info);
 
 	return 1;
 	//Sleep(1000);
@@ -102,7 +105,7 @@ int Client::_createSocket() {
 
 	Info.socket = master;
 	//Info.tag = (char[10])"WHAT";
-	_thread(&Info);
+	_thread(Info);
 	//Sleep(20000);
 	char msg[50];
 	int msg_length = 0;
@@ -201,7 +204,7 @@ int Client::_listen() {
 
 		puts(recvbuf);
 		if (iResult > 0)
-			printf("Bytes received: %d\n", iResult);
+			printf("Bytes received: %d\n> ", iResult);
 		else if (iResult == 0)
 			printf("Connection closed\n");
 		else
@@ -210,6 +213,42 @@ int Client::_listen() {
 	} while (iResult > 0);
 	return 1;
 }
+
+BOOL WINAPI keyboard(LPVOID param) {
+	InfoSocket* Info = (InfoSocket*)param;
+
+	char message[255];
+	int iResult;
+	while (strcmp(message, "*exit")) {
+		printf("> ");
+		scanf("%s", message);
+
+		printf("mensaje enviado %s\n", message);
+
+
+
+		//char MM[] = "*===Multi Hilo===";
+		//memset(&sendbuf, 0, sizeof(sendbuf));//clear the buffer
+		//strcpy(sendbuf, buffer);
+		//iResult = send(ConnectSocket,  mensajes[i], 10, 0);
+		iResult = send(Info->socket, message, (int)strlen(message), 0);
+		if (iResult == SOCKET_ERROR) {
+			printf("send failed with error-> %d\n", WSAGetLastError());
+			//closesocket(Info->socket);
+			//WSACleanup();
+			return 1;
+		}
+
+	}
+	system("cls");
+	printf("**************\n\n");
+
+	closesocket(Info->socket);
+	WSACleanup();
+	exit(0);
+	return true;
+}
+
 
 BOOL WINAPI ClientThread(LPVOID lpData) {
 InfoSocket* Info = (InfoSocket*)lpData;
@@ -234,13 +273,13 @@ InfoSocket* Info = (InfoSocket*)lpData;
 
 			n = sprintf(buffer, "HILO => %d", j);
 
-			char MM[] = "===Multi Hilo===";
+			char MM[] = "*===Multi Hilo===";
 			memset(&sendbuf, 0, sizeof(sendbuf));//clear the buffer
 			strcpy(sendbuf, buffer);
 			//iResult = send(ConnectSocket,  mensajes[i], 10, 0);
 			iResult = send(Info->socket, sendbuf, (int)strlen(sendbuf), 0);
 			if (iResult == SOCKET_ERROR) {
-				printf("send failed with error: %d\n", WSAGetLastError());
+				printf("send failed with error-> %d\n", WSAGetLastError());
 				//closesocket(Info->socket);
 				//WSACleanup();
 				return 1;
@@ -258,8 +297,22 @@ InfoSocket* Info = (InfoSocket*)lpData;
 
 	return true;
 }
-int Client::_thread(struct InfoSocket * INFO) {
-	puts(INFO->tag);
+int Client::_thread(struct InfoSocket INFO) {
+
+	hClientThread = CreateThread(
+		NULL,
+		0,
+		(LPTHREAD_START_ROUTINE)keyboard,
+		&INFO,
+		0,
+		&dwThreadId);
+	
+	return 0;
+
+
+
+
+	puts(INFO.tag);
 
 	char sendbuf[50];
 	int iResult;
@@ -268,7 +321,7 @@ int Client::_thread(struct InfoSocket * INFO) {
 			memset(&sendbuf, 0, sizeof(sendbuf));//clear the buffer
 			strcpy(sendbuf, MM);
 			//iResult = send(ConnectSocket,  mensajes[i], 10, 0);
-			iResult = send(INFO->socket, sendbuf, (int)strlen(sendbuf), 0);
+			iResult = send(INFO.socket, sendbuf, (int)strlen(sendbuf), 0);
 			if (iResult == SOCKET_ERROR) {
 				printf("send failed with error: %d\n", WSAGetLastError());
 				//closesocket(Info->socket);
@@ -281,7 +334,7 @@ int Client::_thread(struct InfoSocket * INFO) {
 		NULL, 
 		0,
 		(LPTHREAD_START_ROUTINE)ClientThread,
-		INFO,
+		&INFO,
 		0,
 		&dwThreadId);
 	return 0;

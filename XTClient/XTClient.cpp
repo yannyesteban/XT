@@ -4,15 +4,16 @@
 #include <iostream>
 #include "Client.h"
 
-int main()
-{
+int main() {
+	
 	system("cls");
 	std::cout << "XT Client v1.0 !!!\n";
 	ClientInfo info;
 	info.host = (char*)"localhost";
 	info.port = "3311";
-	//info.max_clients = 30;
+	
 	Client* s = new Client(info);
 	s->init();
+
 }
 

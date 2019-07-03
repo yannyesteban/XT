@@ -5,7 +5,12 @@
 #include <sys/timeb.h>
 #include <time.h>
 #include "Server.h"
+struct InfoClient {
+	char device_id[10];
+	short int status;
+	SOCKET socket;
 
+};
 struct MsgToClient {
 	char token;
 	char id[10];
@@ -14,7 +19,7 @@ struct MsgToClient {
 std::map<std::string, SOCKET> clients;
 std::map<std::string, SOCKET>::iterator it;
 
-void _CallConection(SOCKET master, SOCKET client);
+void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients);
 void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread);
 
 struct timeb start, end;
@@ -37,9 +42,16 @@ int main()
 	s->init();
 }
 
-void _CallConection(SOCKET master, SOCKET client) {
+void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients) {
 
 	ftime(&start);
+
+	for (int i = 0; i < max_clients; i++) {
+		printf("cliente info: [%d]",clients[i]);
+
+	}
+
+	printf("\nmax: (%d) - index: (%d)\n",max_clients, index);
 	/*
 	char fecha[25];//ctime devuelve 26 caracteres pero tambien se podría usar un puntero de char
 	time_t current_time;
@@ -58,12 +70,13 @@ void _CallConection(SOCKET master, SOCKET client) {
 }
 
 void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
-
+	/*
 	ftime(&end);
 
 	printf("segundos %d\n", getDiff()/1000 );
 
 	ftime(&start);
+	*/
 	/*
 	char fecha[25];//ctime devuelve 26 caracteres pero tambien se podría usar un puntero de char
 	time_t current_time;
@@ -88,8 +101,8 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
 		puts("si");
 
 		
-		//sprintf(ID, "%lu", st->Keep_Alive_Device_ID);
-		_itoa_s(st->Keep_Alive_Device_ID, ID, sizeof(ID), 10);
+		sprintf(ID, "%lu", st->Keep_Alive_Device_ID);
+		//_itoa_s(st->Keep_Alive_Device_ID, ID, sizeof(ID), 10);
 		clients.insert({ ID, client});
 		//clients.insert({ "esteban", 200 });
 		

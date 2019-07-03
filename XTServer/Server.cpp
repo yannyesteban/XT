@@ -116,7 +116,7 @@ void Server::_listen() {
 			for (i = 0; i < max_clients; i++) {
 				if (clients[i] == 0) {
 					clients[i] = new_socket;
-					CallConection(master, new_socket);
+					CallConection(master, new_socket, clients, i, max_clients);
 					printf("Adding to list of sockets at index %d \n", i);
 					break;
 				}
@@ -206,7 +206,7 @@ void Server::_listen() {
 					//send(s, (char*)buffer5, strlen(buffer5), 0);
 
 					//
-					printf("%s:%d - [%s] \n", inet_ntoa(address.sin_addr), ntohs(address.sin_port), buffer);
+					//printf("%s:%d - [%s] \n", inet_ntoa(address.sin_addr), ntohs(address.sin_port), buffer);
 					//send(s, "QUE", sizeof(msg2.msg), 0);
 				}
 			}

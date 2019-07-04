@@ -8,6 +8,16 @@
 #include <stdint.h>
 #pragma comment(lib, "ws2_32.lib") //Winsock Library
 
+/*
+LC_ALL 	selecciona toda la configuración regional
+LC_COLLATE 	selecciona la categoría cotejo de la configuración regional
+LC_CTYPE 	selecciona la categoría de clasificación caracteres del entorno local
+LC_MONETARY 	selecciona la categoría de formato monetario de la configuración regional
+LC_NUMERIC 	selecciona la categoría de formato numérico de la configuración regional
+LC_TIME 	selecciona el tiempo de la categoría de formato de la configuración regional
+
+*/
+
 typedef struct {
 	unsigned short Keep_Alive_Header;
 	unsigned short Keep_Alive_ID;

@@ -4,11 +4,14 @@
 #include <map> 
 #include <sys/timeb.h>
 #include <time.h>
+#include <regex>
+#include <clocale>
 #include "Server.h"
 struct InfoClient {
 	char device_id[10];
-	short int status;
+	short int status=0;
 	SOCKET socket;
+	short int type = 0;
 
 };
 struct MsgToClient {
@@ -16,6 +19,11 @@ struct MsgToClient {
 	char id[10];
 	char cmd[100];
 };
+std::map<std::string, InfoClient> Devices;
+
+std::map<SOCKET, InfoClient> Clients;
+std::map<SOCKET, InfoClient>::iterator cliIT;
+
 std::map<std::string, SOCKET> clients;
 std::map<std::string, SOCKET>::iterator it;
 
@@ -29,7 +37,30 @@ int getDiff() {
 
 int main()
 {
+	setlocale(LC_CTYPE, "Spanish");
+	system("cls");
+
 	
+
+
+	if (std::regex_match("yanny", std::regex("([.]+)"))) {
+		std::cout << "string literal matched\n";
+	}
+	std::smatch m;
+	std::string ss("yanny,esteban,nÚñez,jimÉnez");
+	std::regex Pala("[a-zA-ZñÑáéíóúÁÉÍÓÚäëïöüÄËÏÖÜ]+");	
+	while (std::regex_search(ss, m, Pala)) {
+		//std::cout << "Pala\n";
+
+		for (auto x : m) {
+			std::cout << x << " ";
+		}
+		std::cout << std::endl;
+		ss = m.suffix().str();
+
+	}
+
+	//exit(0);
 	system("cls");
 	std::cout << "XT Server v1.0 !!!\n";
 	ServerInfo info;
@@ -45,13 +76,14 @@ int main()
 void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients) {
 
 	ftime(&start);
-
+	/*
 	for (int i = 0; i < max_clients; i++) {
 		printf("cliente info: [%d]",clients[i]);
 
 	}
 
 	printf("\nmax: (%d) - index: (%d)\n",max_clients, index);
+	*/
 	/*
 	char fecha[25];//ctime devuelve 26 caracteres pero tambien se podría usar un puntero de char
 	time_t current_time;
@@ -70,6 +102,21 @@ void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, s
 }
 
 void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
+
+
+	if (Clients.count(client) > 0) {
+		puts("Receiving...");
+	
+	} else {
+		puts("New Client...");
+		Clients[client].status = 1;
+		Clients[client].socket = client;
+		Clients[client].type = 2;
+
+
+	}
+	
+
 	/*
 	ftime(&end);
 
@@ -87,33 +134,38 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
 */
 	//printf("Inicio [%s]\n\n", fecha);
 
-	printf("Conectando ---> [%s]\n", buffer);
+	//printf("Conectando ---> [%s]\n", buffer);
 
 	Keep_Alivestruct* st =(Keep_Alivestruct*)buffer;
 
-	printf("Keep_Alive_Device_ID: %d\n",st->Keep_Alive_Device_ID);
-	printf("Keep_Alive_Header: %d\n", st->Keep_Alive_Header);
-	printf("Keep_Alive_ID: %d\n", st->Keep_Alive_ID);
+	
 
 	
 	char ID[12];
-	if (st->Keep_Alive_Header == 55248) {
-		puts("si");
-
-		
+	if (st->Keep_Alive_Header == 55248) {// IS A SYNC MESSAGE
+		puts("SYNC");
+		printf("Keep_Alive_Device_ID: %d\n", st->Keep_Alive_Device_ID);
+		printf("Keep_Alive_Header: %d\n", st->Keep_Alive_Header);
+		printf("Keep_Alive_ID: %d\n", st->Keep_Alive_ID);
 		sprintf(ID, "%lu", st->Keep_Alive_Device_ID);
-		//_itoa_s(st->Keep_Alive_Device_ID, ID, sizeof(ID), 10);
-		clients.insert({ ID, client});
-		//clients.insert({ "esteban", 200 });
+		//clients[ID] = client;
 		
+		if (Devices.count(ID)>0) {
+			puts("Device Existe");
+		} else {
+			puts("New Device");
+			Devices[ID].status = 1;
+			Devices[ID].socket = client;
+			Devices[ID].type = 1;
+			Clients[client].type = 1;
+		}
 
-		send(client, buffer, valread, 0);
-	} else {
-		puts("no");
-		send(client, buffer, valread, 0);
-
-		
+		send(client, buffer, valread, 0);// return the sycm message
+		return;
 	}
+	
+	puts(buffer);
+	send(client, buffer, valread, 0);
 	MsgToClient *msg = (MsgToClient *)buffer;
 
 	
@@ -121,8 +173,19 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
 	switch (msg->token) {
 	case '*':
 		memcpy_s(&g,sizeof(g), msg->id, sizeof(msg->id));
-		//g = (char*)msg->cmd;
 
+		puts(g);
+		if (Devices.count(g)>0) {
+			puts("enviando....");
+
+			send(Devices[g].socket, (char*)msg->cmd, strlen(msg->cmd), 0);
+			break;
+		} else {
+			puts("no es devices"); 
+		}
+		break;
+		//g = (char*)msg->cmd;
+		
 
 
 
@@ -166,8 +229,15 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
 		break;
 		
 	case '$':
-		puts("borrar");
-		system("cls");
+		//puts("borrar");
+		//system("cls");
+
+		for (cliIT = Clients.begin(); cliIT != Clients.end(); ++cliIT) {
+
+			send(cliIT->first, buffer, valread, 0);// return the sycm message
+			
+		}
+
 		break;
 
 			

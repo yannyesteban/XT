@@ -44,8 +44,7 @@ void Server::_bing() {
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
 	server.sin_port = htons(Info.port);
-
-
+	
 	//Bind
 	if (bind(master, (struct sockaddr*) & server, sizeof(server)) == SOCKET_ERROR) {
 		printf("Bind failed with error code : %d", WSAGetLastError());
@@ -93,11 +92,8 @@ void Server::_listen() {
 			}
 		}
 		
-		//puts("Beging to Wait.....");
 		//wait for an activity on any of the sockets, timeout is NULL , so wait indefinitely
 		activity = select(0, &readfds, NULL, NULL, NULL);
-		//printf("\n\nconected........");
-		//system("cls");
 		if (activity == SOCKET_ERROR) {
 			printf("select call failed with error code : %d", WSAGetLastError());
 			exit(EXIT_FAILURE);

@@ -76,6 +76,19 @@ int main()
 void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients) {
 
 	ftime(&start);
+	
+	if (Clients.count(client) > 0) {
+		puts("Receiving...");
+
+	} else {
+		puts("New Client...");
+		Clients[client].status = 1;
+		Clients[client].socket = client;
+		Clients[client].type = 2;
+
+
+	}
+	
 	/*
 	for (int i = 0; i < max_clients; i++) {
 		printf("cliente info: [%d]",clients[i]);

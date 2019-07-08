@@ -7,6 +7,10 @@
 #include <regex>
 #include <clocale>
 #include "Server.h"
+#include "json.h"
+#include "XTTime.h"
+#include "Config.h"
+#include "XTDB.h"
 struct InfoClient {
 	char device_id[10];
 	short int status=0;
@@ -40,8 +44,17 @@ int main()
 	setlocale(LC_CTYPE, "Spanish");
 	system("cls");
 
-	
+	//json myjson;
+	//XTTime my_time;
 
+	//myjson.test();
+
+	//my_time.test();
+	Config::load();
+	XTDB My;
+	My.test();
+	printf("today is %s", XTTime::now());
+	return 1;
 
 	if (std::regex_match("yanny", std::regex("([.]+)"))) {
 		std::cout << "string literal matched\n";

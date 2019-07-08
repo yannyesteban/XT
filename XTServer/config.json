@@ -1,0 +1,11 @@
+{
+  "port": 3311,
+  "max_clients": 30,
+  "db": {
+    "dbname": "webcar",
+    "user": "cota",
+    "pass": "cota1024",
+	"port": 3306
+
+  }
+}

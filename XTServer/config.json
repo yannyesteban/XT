@@ -1,11 +1,13 @@
 {
-  "port": 3311,
-  "max_clients": 30,
+  "appname": "GTComm",
+  "port"		: 3311,
+  "max_clients"	: 30,
   "db": {
-    "dbname": "webcar",
-    "user": "cota",
-    "pass": "cota1024",
-	"port": 3306
+    "dbname": "geocota",
+    "host"  : "localhost",
+	"user"  : "root",
+    "pass"  : "123456",
+	"port"  : "3306"
 
   }
 }

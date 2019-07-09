@@ -11,6 +11,8 @@
 #include "XTTime.h"
 #include "Config.h"
 #include "XTDB.h"
+#include "XTTool.h"
+
 struct InfoClient {
 	char device_id[10];
 	short int status=0;
@@ -34,9 +36,9 @@ std::map<std::string, SOCKET>::iterator it;
 void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients);
 void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread);
 
-struct timeb start, end;
+struct timeb start, __end;
 int getDiff() {
-	return (int)(1000.0 * (end.time - start.time) + (end.millitm - start.millitm));
+	return (int)(1000.0 * (__end.time - start.time) + (__end.millitm - start.millitm));
 }
 
 int main()
@@ -50,17 +52,48 @@ int main()
 	//myjson.test();
 
 	//my_time.test();
-	Config::load();
-	XTDB My;
-	My.test();
-	printf("today is %s", XTTime::now());
+	auto mInfo = XT::Config::load("C:\\source\\cpp\\XT\\XTServer\\config.json");
+
+
+//
+printf("%s", mInfo.appname);
+printf("%s", mInfo.db.dbname);
+	//XT::Config::test2(tt);
+
+
+
+
+//printf("%s",XT::Config::info.max_clients);
+	
+/*
+XT::InfoDB infoDB = {
+		XT::Config::info.db.host,
+		XT::Config::info.db.port,
+		XT::Config::info.db.dbname,
+		XT::Config::info.db.user,
+		XT::Config::info.db.pass
+	};
+
+	*/
+
+	XT::DB My;
+	My.connect(mInfo.db);
+	//return 1;
+	//My.test();
+
+	printf("\nmi id es : %d\n\n",My.getDeviceId("2012000413"));
+	printf("today is %s", XT::Time::now());
 	return 1;
 
 	if (std::regex_match("yanny", std::regex("([.]+)"))) {
 		std::cout << "string literal matched\n";
 	}
 	std::smatch m;
-	std::string ss("yanny,esteban,nÚñez,jimÉnez");
+	std::string ss("Yanny,Esteban,Núñez,Jiménez");
+
+	XT::Tool::split(ss, ',');
+	XT::Tool::test();
+
 	std::regex Pala("[a-zA-ZñÑáéíóúÁÉÍÓÚäëïöüÄËÏÖÜ]+");	
 	while (std::regex_search(ss, m, Pala)) {
 		//std::cout << "Pala\n";
@@ -74,6 +107,7 @@ int main()
 	}
 
 	//exit(0);
+	//return 1;
 	system("cls");
 	std::cout << "XT Server v1.0 !!!\n";
 	ServerInfo info;

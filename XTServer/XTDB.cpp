@@ -84,7 +84,7 @@ namespace XT {
 	int DB::loadProtocols() {
 
 		std::map<int, InfoProto> proto;
-		InfoProto proto_x;
+		
 
 		int ID = 0;
 		try {
@@ -104,7 +104,7 @@ namespace XT {
 				result = p_stmt->getResultSet();
 
 				while (result->next()) {
-
+					InfoProto proto_x;
 					proto_x.id_device = result->getInt("id");
 					proto_x.tag_length = result->getInt("tag_length");
 					proto_x.pass_default = result->getString("pass_default").c_str();
@@ -112,9 +112,10 @@ namespace XT {
 					proto_x.sync_header = result->getString("sync_header").c_str();
 					proto_x.protocol_pre = result->getString("protocol_pre").c_str();
 					proto.insert(std::pair<int, InfoProto>(result->getInt("id"), proto_x));
-
+					proto_x.protocol_pre = (const char *)result->getString(4).c_str();
 					cout << "..." << proto[proto_x.id_device].id_device <<" " << 
 						//result->getString("protocol_pre").c_str() << ".." <<
+						result->getString(4).c_str() << "...." <<
 						proto_x.protocol_pre
 						<< ".." << endl;
 				}

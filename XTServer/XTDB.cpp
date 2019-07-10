@@ -15,7 +15,7 @@ namespace XT {
 			cn = driver->connect(str_host, pInfo.user, pInfo.pass);
 			//cout << "es correcta " << cn->isValid() << endl;
 			/* Connect to the MySQL test database */
-			cn->setSchema(pInfo.dbname);
+			cn->setSchema(pInfo.name);
 			return 1;
 			
 		} catch (sql::SQLException& e) {
@@ -136,9 +136,12 @@ namespace XT {
 	int DB::getDeviceId(const char* unitid) {
 
 		std::map<std::string, int> myId;
-		std::map<int, std::string> myId2;
+		
 
-		std::map<char *, int> myId3;
+		
+
+
+		
 
 		int ID = 0;
 		try {
@@ -147,28 +150,38 @@ namespace XT {
 			sql::Statement* stmt;
 			sql::ResultSet* result;
 
+			sql::PreparedStatement* p_stmt;
+
 			stmt = cn->createStatement();
 			
 			char* query = (char*)malloc(512);
 			
 			sprintf(query, "SELECT id,unitid FROM devices WHERE unitid='%s'", unitid);
 
-			result = stmt->executeQuery(query);
+			p_stmt = cn->prepareStatement("SELECT id,unitid FROM devices WHERE unitid='2012000413'");
+			//p_stmt->setString(1, unitid);
+
+			
+			
+			/*if (rs) {
+				result = p_stmt->getResultSet();
+			}
+			//*/
+			
+			//result = stmt->executeQuery(query);
+			
+			bool rs = p_stmt->execute();
+
+			result = p_stmt->getResultSet();
 			
 			while (result->next()) {
-
-				ID = result->getInt("id");
-				myId[result->getString("unitid").c_str()] = result->getInt("id");
-				myId2[result->getInt("id")] = result->getString("unitid").c_str();
-				myId3.insert(std::pair<char *, int>((char *)result->getString("unitid").c_str(), 4554));
-				//myId3[(const char *)result->getString("unitid").c_str()] = result->getInt("id");
-				cout << endl << result->getString("unitid").c_str() <<  endl;
-				cout << result->getInt("id") << "=>" << myId2[result->getInt("id")] << endl;
+				myId.insert(std::pair<std::string, int>(result->getString("unitid").c_str(), result->getInt("id")));
 			}
+
+			cout << "..." << myId["2012000413"] << ".." << endl;
 			delete result;
 			delete stmt;
-			cout << "........." << myId3[(char *)"2012000413"] << "====" << myId["2012000413"]<<endl;
-			//printf("....%d....%s...", myId["2012000413"], myId2[1]);
+			delete p_stmt;
 
 			free(query);
 
@@ -177,7 +190,7 @@ namespace XT {
 			cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
 			cout << "# ERR: " << e.what();
 			cout << " (MySQL error code: " << e.getErrorCode();
-			cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+			//cout << ", SQLState: " << e.getSQLState() << " )" << endl;
 		}
 
 		

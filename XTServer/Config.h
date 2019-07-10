@@ -10,9 +10,10 @@
 namespace XT {
 
 	struct AppConfig {
-		char appname[30];
+		const char* appname;
 		unsigned int port;
 		unsigned int max_clients;
+		const char* version;
 		InfoDB db;
 
 
@@ -20,10 +21,15 @@ namespace XT {
 	class Config {
 
 	public:
-		static AppConfig info;
-
+		
+		static rapidjson::Document d;
 		static AppConfig load(const char* path);
 
+		static AppConfig getInfo() {
+			return info;
+		}
+	private:
+		static AppConfig info;
 	
 	};
 

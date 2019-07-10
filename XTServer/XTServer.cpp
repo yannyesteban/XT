@@ -53,11 +53,12 @@ int main()
 
 	//my_time.test();
 	auto mInfo = XT::Config::load("C:\\source\\cpp\\XT\\XTServer\\config.json");
-
+	//auto mInfo = XT::Config::getInfo();
 
 //
-printf("%s", mInfo.appname);
-printf("%s", mInfo.db.dbname);
+printf("APP NAME: %s\n", mInfo.appname);
+printf("Version: %s \n", mInfo.version);
+printf("DB Name: %s\n", mInfo.db.name);
 	//XT::Config::test2(tt);
 
 

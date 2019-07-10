@@ -1,9 +1,10 @@
 {
-  "appname": "GTComm",
+  "appname"		: "GTComm",
   "port"		: 3311,
-  "max_clients"	: 30,
+  "max_clients"	: 35,
+  "version"		: "1.0.0.1",
   "db": {
-    "dbname": "geocota",
+    "name"	: "geocota",
     "host"  : "localhost",
 	"user"  : "root",
     "pass"  : "123456",

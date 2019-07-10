@@ -7,9 +7,18 @@
 namespace XT {
 	struct InfoDB {
 
+		const char* host;
+		const char* port;
+		const char* name;
+		const char* user;
+		const char* pass;
+
+	};
+	struct InfoDB2 {
+
 		char host[30];
 		char port[5];
-		char dbname[30];
+		char name[30];
 		char user[30];
 		char pass[30];
 

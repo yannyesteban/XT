@@ -108,7 +108,7 @@ namespace XT {
 					proto_x.id_device = result->getInt("id");
 					proto_x.tag_length = result->getInt("tag_length");
 					proto_x.pass_default = result->getString("pass_default").c_str();
-					proto_x.protocol_pre = result->getString("protocol_pre").c_str();
+					proto_x.protocol_pre = result->getString(4).c_str();
 					proto_x.sync_header = result->getString("sync_header").c_str();
 					proto_x.protocol_pre = result->getString("protocol_pre").c_str();
 					proto.insert(std::pair<int, InfoProto>(result->getInt("id"), proto_x));

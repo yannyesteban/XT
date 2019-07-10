@@ -113,9 +113,12 @@ namespace XT {
 					proto_x.protocol_pre = result->getString("protocol_pre").c_str();
 					proto.insert(std::pair<int, InfoProto>(result->getInt("id"), proto_x));
 					proto_x.protocol_pre = (const char *)result->getString(4).c_str();
+					
+					const char * x = result->getString("protocol_pre").c_str();
+					
 					cout << "..." << proto[proto_x.id_device].id_device <<" " << 
 						//result->getString("protocol_pre").c_str() << ".." <<
-						result->getString(4).c_str() << "...." <<
+						x << "...." <<
 						proto_x.protocol_pre
 						<< ".." << endl;
 				}

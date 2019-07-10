@@ -79,6 +79,7 @@ XT::InfoDB infoDB = {
 
 	XT::DB My;
 	My.connect(mInfo.db);
+	My.loadProtocols();
 	//return 1;
 	//My.test();
 

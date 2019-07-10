@@ -5,6 +5,9 @@
 #include <mysql/jdbc.h>
 
 namespace XT {
+
+	
+
 	struct InfoDB {
 
 		const char* host;
@@ -23,13 +26,37 @@ namespace XT {
 		char pass[30];
 
 	};
+	typedef struct {
+		unsigned short Keep_Alive_Header;
+		unsigned short Keep_Alive_ID;
+		unsigned long Keep_Alive_Device_ID;
+	} SyncStrcut;
+
+	struct InfoProto {
+		int id_device;
+		short tag_length;
+		const char* pass_default;
+		const char* protocol_pre;
+		const char* sync_header;
+	};
+
+	struct ConfigTrack {
+		int id_device;
+		char* track[30];
+	};
+
 	class DB {
 	public:
 		int connect(InfoDB pInfo);
 		int test();
 
+		int loadProtocols();
+		int loadConfigTrack();
+
 		int loadFormat();
 		int getDeviceId(const char * unitid);
+
+
 		~DB();
 
 	private:

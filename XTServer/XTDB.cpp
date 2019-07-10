@@ -81,6 +81,75 @@ namespace XT {
 
 	}
 
+	int DB::loadProtocols() {
+
+		std::map<int, InfoProto> proto;
+		InfoProto proto_x;
+
+		int ID = 0;
+		try {
+			sql::Statement* stmt;
+			sql::ResultSet* result;
+			sql::PreparedStatement* p_stmt;
+
+			stmt = cn->createStatement();
+
+			p_stmt = cn->prepareStatement(
+				"SELECT id, tag_length, pass_default, protocol_pre,sync_header "
+				"FROM devices_versions as d "
+			);
+			
+
+			if (p_stmt->execute()) {
+				result = p_stmt->getResultSet();
+
+				while (result->next()) {
+
+					proto_x.id_device = result->getInt("id");
+					proto_x.tag_length = result->getInt("tag_length");
+					proto_x.pass_default = result->getString("pass_default").c_str();
+					proto_x.protocol_pre = result->getString("protocol_pre").c_str();
+					proto_x.sync_header = result->getString("sync_header").c_str();
+					proto_x.protocol_pre = result->getString("protocol_pre").c_str();
+					proto.insert(std::pair<int, InfoProto>(result->getInt("id"), proto_x));
+
+					cout << "..." << proto[proto_x.id_device].id_device <<" " << 
+						//result->getString("protocol_pre").c_str() << ".." <<
+						proto_x.protocol_pre
+						<< ".." << endl;
+				}
+
+				
+				delete result;
+			}
+
+
+			//result = stmt->executeQuery(query);
+
+
+
+
+
+			delete stmt;
+			delete p_stmt;
+
+			//free(query);
+
+		} catch (sql::SQLException& e) {
+			cout << "# ERR: SQLException in " << __FILE__;
+			cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+			cout << "# ERR: " << e.what();
+			cout << " (MySQL error code: " << e.getErrorCode();
+			//cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+		}
+
+		return 0;
+	}
+
+	int DB::loadConfigTrack() {
+		return 0;
+	}
+
 	int DB::loadFormat() {
 
 
@@ -138,11 +207,6 @@ namespace XT {
 		std::map<std::string, int> myId;
 		
 
-		
-
-
-		
-
 		int ID = 0;
 		try {
 			//sql::Driver* driver;
@@ -154,36 +218,37 @@ namespace XT {
 
 			stmt = cn->createStatement();
 			
-			char* query = (char*)malloc(512);
+			//char* query = (char*)malloc(512);
 			
-			sprintf(query, "SELECT id,unitid FROM devices WHERE unitid='%s'", unitid);
+			//sprintf(query, "SELECT id,unitid FROM devices WHERE unitid='%s'", unitid);
 
-			p_stmt = cn->prepareStatement("SELECT id,unitid FROM devices WHERE unitid='2012000413'");
-			//p_stmt->setString(1, unitid);
+			p_stmt = cn->prepareStatement("SELECT id,unitid FROM devices WHERE unitid=?");
+			p_stmt->setString(1, unitid);
 
 			
 			
-			/*if (rs) {
+			if (p_stmt->execute()) {
 				result = p_stmt->getResultSet();
+				
+				while (result->next()) {
+					myId.insert(std::pair<std::string, int>(result->getString("unitid").c_str(), result->getInt("id")));
+				}
+
+				cout << "..." << myId["2012000413"] << ".." << endl;
+				delete result;
 			}
-			//*/
+			
 			
 			//result = stmt->executeQuery(query);
 			
-			bool rs = p_stmt->execute();
-
-			result = p_stmt->getResultSet();
 			
-			while (result->next()) {
-				myId.insert(std::pair<std::string, int>(result->getString("unitid").c_str(), result->getInt("id")));
-			}
 
-			cout << "..." << myId["2012000413"] << ".." << endl;
-			delete result;
+
+			
 			delete stmt;
 			delete p_stmt;
 
-			free(query);
+			//free(query);
 
 		} catch (sql::SQLException& e) {
 			cout << "# ERR: SQLException in " << __FILE__;

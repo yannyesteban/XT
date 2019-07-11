@@ -33,11 +33,13 @@ namespace XT {
 	} SyncStrcut;
 
 	struct InfoProto {
+		
 		int id_device;
-		short tag_length;
-		const char* pass_default;
-		const char* protocol_pre;
-		const char* sync_header;
+		int tag_length;
+		char* pass_default;
+		char* protocol_pre;
+		char* sync_header;
+
 	};
 
 	struct ConfigTrack {
@@ -47,6 +49,8 @@ namespace XT {
 
 	class DB {
 	public:
+		std::map<int, InfoProto*> proto;
+
 		int connect(InfoDB pInfo);
 		int test();
 

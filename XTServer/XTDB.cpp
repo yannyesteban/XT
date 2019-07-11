@@ -83,7 +83,7 @@ namespace XT {
 
 	int DB::loadProtocols() {
 
-		std::map<int, InfoProto> proto;
+		
 		
 
 		int ID = 0;
@@ -102,27 +102,51 @@ namespace XT {
 
 			if (p_stmt->execute()) {
 				result = p_stmt->getResultSet();
-
+				string protocol_pre;
+				string str;
 				while (result->next()) {
-					InfoProto proto_x;
-					proto_x.id_device = result->getInt("id");
-					proto_x.tag_length = result->getInt("tag_length");
-					proto_x.pass_default = result->getString("pass_default").c_str();
-					proto_x.protocol_pre = result->getString(4).c_str();
-					proto_x.sync_header = result->getString("sync_header").c_str();
-					proto_x.protocol_pre = result->getString("protocol_pre").c_str();
-					proto.insert(std::pair<int, InfoProto>(result->getInt("id"), proto_x));
-					proto_x.protocol_pre = (const char *)result->getString(4).c_str();
-					
-					const char * x = result->getString("protocol_pre").c_str();
-					
-					cout << "..." << proto[proto_x.id_device].id_device <<" " << 
-						//result->getString("protocol_pre").c_str() << ".." <<
-						x << "...." <<
-						proto_x.protocol_pre
-						<< ".." << endl;
-				}
 
+
+
+					InfoProto* proto_z = new InfoProto({
+							result->getInt("id"),
+							result->getInt("tag_length"),
+							(char*)malloc(strlen(result->getString("pass_default").c_str())),
+							(char*)malloc(strlen(result->getString("protocol_pre").c_str())),
+							(char*)malloc(strlen(result->getString("sync_header").c_str()))
+
+						});
+					//proto_z->pass_default = (char *)result->getString("pass_default").c_str();
+					strcpy(proto_z->protocol_pre, result->getString("protocol_pre").c_str());
+					strcpy(proto_z->pass_default, result->getString("pass_default").c_str());
+					strcpy(proto_z->sync_header, result->getString("sync_header").c_str());
+
+					//proto_z->protocol_pre = result->getString("protocol_pre").c_str();
+					//proto_z->sync_header = result->getString("sync_header").c_str();
+
+					
+					proto.insert(std::pair<int, InfoProto*>(result->getInt("id"), proto_z));
+
+				}
+				
+				for (std::map<int, InfoProto*>::iterator it = proto.begin(); it != proto.end(); ++it) {
+					
+					cout << it->first << " => ";
+
+					cout << 
+						it->second->id_device <<
+						", "<< it->second->tag_length <<
+						"," <<
+						"," << it->second->pass_default <<
+						"," << it->second->protocol_pre <<
+						"," << it->second->sync_header <<
+						//"," << it->second->protocol_pre3 <<
+						//",y3 " << it->second->protocol_pre3 <<
+						//", " <<it->second->protocol_pre2 << 
+						'\n';
+						
+				}
+					
 				
 				delete result;
 			}

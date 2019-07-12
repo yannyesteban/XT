@@ -14,6 +14,7 @@ namespace XT {
 		unsigned int port;
 		unsigned int max_clients;
 		const char* version;
+		bool debug;
 		InfoDB db;
 
 

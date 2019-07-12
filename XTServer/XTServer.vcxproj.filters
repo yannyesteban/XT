@@ -60,5 +60,6 @@
   <ItemGroup>
     <None Include="big.json" />
     <None Include="small.json" />
+    <None Include="config.json" />
   </ItemGroup>
 </Project>

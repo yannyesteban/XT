@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "XTDB.h"
 using namespace std;
 
@@ -128,35 +129,98 @@ namespace XT {
 					proto.insert(std::pair<int, InfoProto*>(result->getInt("id"), proto_z));
 
 				}
-				
-				for (std::map<int, InfoProto*>::iterator it = proto.begin(); it != proto.end(); ++it) {
-					
-					cout << it->first << " => ";
+				if (debug) {
 
-					cout << 
-						it->second->id_device <<
-						", "<< it->second->tag_length <<
-						"," <<
-						"," << it->second->pass_default <<
-						"," << it->second->protocol_pre <<
-						"," << it->second->sync_header <<
-						//"," << it->second->protocol_pre3 <<
-						//",y3 " << it->second->protocol_pre3 <<
-						//", " <<it->second->protocol_pre2 << 
-						'\n';
-						
-				}
+					printf("\n*** Cache for Devices Version ***\n\n");
+
+					printf("%8s", "Id");
+					printf("%8s", "TabLen");
+					printf("%10s", "Pass");
+					printf("%10s", "Pre");
+					printf("%12s\n", "Sync");
+
+					printf("%8s", "/=====");
+					printf("%8s", "/=====");
+					printf("%10s", "/=======");
+					printf("%10s", "/========");
+					printf("%12s\n", "/=========");
 					
+					for (std::map<int, InfoProto*>::iterator it = proto.begin(); it != proto.end(); ++it) {
+
+						printf("%8d", it->second->id_device);
+						printf("%8d", it->second->tag_length);
+						printf("%10s", it->second->pass_default);
+						printf("%10s", it->second->protocol_pre);
+						printf("%12s\n", it->second->sync_header);
+						
+					}
+				}
 				
 				delete result;
 			}
 
+			p_stmt = cn->prepareStatement(
+				"SELECT sync_dec FROM devices_versions d GROUP BY sync_dec; "
+			);
+			int n_versions = 0;
+			if (p_stmt->execute()) {
+				result = p_stmt->getResultSet();
+				
+				while (result->next()) {
+					versions[n_versions++] = result->getInt("sync_dec");
+				}
+
+				if (debug) {
+					printf("\n*** Cache for Sync Versions ***\n\n");
+					printf("%10s", "Id");
+					printf("%10s\n", "Sync");
+					printf("%10s", "/========");
+					printf("%10s\n", "/=========");
+
+					for (int i = 0; i < n_versions; i++) {
+						printf("%10d", i);
+						printf("%10d\n", versions[i]);
+					}
+				}
+
+				delete result;
+			}
+
+
+			p_stmt = cn->prepareStatement(
+				"SELECT id, unitid, id_version FROM devices as d; "
+			);
+			
+			if (p_stmt->execute()) {
+				result = p_stmt->getResultSet();
+
+				while (result->next()) {
+					InfoClient* client_x = new InfoClient({
+						result->getInt("id"),
+						result->getInt("id_version")});
+					
+					clients.insert(std::pair<string, InfoClient*>(result->getString("unitid").c_str(), client_x));
+				}
+				if (debug) {
+
+					printf("\n*** Cache for Sync Versions ***\n\n");
+					printf("%12s", "UnitId");
+					printf("%10s", "Id");
+					printf("%10s\n", "Version");
+					printf("%12s", "/==========");
+					printf("%10s", "/========");
+					printf("%10s\n", "/=========");
+					for (std::map<std::string, InfoClient*>::iterator it = clients.begin(); it != clients.end(); ++it) {
+						printf("%12s", it->first.c_str());
+						printf("%10d", it->second->id);
+						printf("%10d\n", it->second->id_version);
+					}
+				}
+
+				delete result;
+			}
 
 			//result = stmt->executeQuery(query);
-
-
-
-
 
 			delete stmt;
 			delete p_stmt;
@@ -262,7 +326,7 @@ namespace XT {
 					myId.insert(std::pair<std::string, int>(result->getString("unitid").c_str(), result->getInt("id")));
 				}
 
-				cout << "..." << myId["2012000413"] << ".." << endl;
+				//cout << "..." << myId["2012000413"] << ".." << endl;
 				delete result;
 			}
 			
@@ -289,6 +353,15 @@ namespace XT {
 		
 
 		return ID;
+	}
+
+	void DB::setDebug(bool pDebug) {
+		debug = pDebug;
+	
+	}
+
+	bool DB::getDebug() {
+		return debug;
 	}
 
 	DB::~DB() {

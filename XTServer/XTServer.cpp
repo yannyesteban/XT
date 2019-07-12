@@ -59,6 +59,7 @@ int main()
 printf("APP NAME: %s\n", mInfo.appname);
 printf("Version: %s \n", mInfo.version);
 printf("DB Name: %s\n", mInfo.db.name);
+printf("Time: %s", XT::Time::now());
 	//XT::Config::test2(tt);
 
 
@@ -78,13 +79,14 @@ XT::InfoDB infoDB = {
 	*/
 
 	XT::DB My;
+	My.setDebug(mInfo.debug);
 	My.connect(mInfo.db);
 	My.loadProtocols();
 	//return 1;
 	//My.test();
 
-	printf("\nmi id es : %d\n\n",My.getDeviceId("2012000413"));
-	printf("today is %s", XT::Time::now());
+	//printf("\nmi id es : %d\n\n",My.getDeviceId("2012000413"));
+	
 	return 1;
 
 	if (std::regex_match("yanny", std::regex("([.]+)"))) {

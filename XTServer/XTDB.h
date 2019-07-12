@@ -6,7 +6,10 @@
 
 namespace XT {
 
-	
+	struct InfoClient {
+		int id;
+		int id_version;
+	};
 
 	struct InfoDB {
 
@@ -61,6 +64,9 @@ namespace XT {
 		int getDeviceId(const char * unitid);
 
 
+		void setDebug(bool);
+		bool getDebug();
+
 		~DB();
 
 	private:
@@ -68,6 +74,14 @@ namespace XT {
 		sql::Connection* cn;
 		sql::Statement* stmt;
 		sql::ResultSet* result;
+
+		int versions[50];
+		int n_versions;
+
+		std::map<std::string, InfoClient*> clients;
+		std::map<std::string, InfoClient*>::iterator clients_it;
+
+		bool debug = false;
 
 	};
 }

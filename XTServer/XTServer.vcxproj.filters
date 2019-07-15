@@ -62,4 +62,7 @@
     <None Include="small.json" />
     <None Include="config.json" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="comandos.txt" />
+  </ItemGroup>
 </Project>

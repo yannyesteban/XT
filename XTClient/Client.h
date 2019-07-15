@@ -42,6 +42,7 @@ public:
 private:
 
 	ClientInfo Info;
+	InfoSocket Info2;
 	WSADATA wsa;
 	SOCKET master;
 
@@ -51,7 +52,7 @@ private:
 	int _startUp();
 	int _createSocket();
 	int _listen();
-	int _thread(struct InfoSocket INFO);
+	int _thread(InfoSocket &INFO);
 
 
 	

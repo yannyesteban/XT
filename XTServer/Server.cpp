@@ -191,7 +191,7 @@ void Server::_listen() {
 					if (band) {
 						puts("track.....");
 						band = false;
-						char buffer5[] = "$WP+TRACK=0000,0,15,0,0,0,3,4,10";
+						char buffer5[] = "$WP+TRACK=0000,1,15,0,0,0,3,4,10";
 						send(s, (char*)buffer5, strlen(buffer5), 0);
 					}
 					*/

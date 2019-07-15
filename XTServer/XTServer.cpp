@@ -37,6 +37,10 @@ void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, s
 void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread);
 
 struct timeb start, __end;
+
+int* versions;
+int n_versions;
+
 int getDiff() {
 	return (int)(1000.0 * (__end.time - start.time) + (__end.millitm - start.millitm));
 }
@@ -61,12 +65,8 @@ printf("Version: %s \n", mInfo.version);
 printf("DB Name: %s\n", mInfo.db.name);
 printf("Time: %s", XT::Time::now());
 	//XT::Config::test2(tt);
-
-
-
-
 //printf("%s",XT::Config::info.max_clients);
-	
+
 /*
 XT::InfoDB infoDB = {
 		XT::Config::info.db.host,
@@ -78,16 +78,23 @@ XT::InfoDB infoDB = {
 
 	*/
 
-	XT::DB My;
-	My.setDebug(mInfo.debug);
-	My.connect(mInfo.db);
-	My.loadProtocols();
+	XT::DB db;
+	db.setDebug(mInfo.debug);
+	db.connect(mInfo.db);
+	db.loadProtocols();
+	//db.getVersions();
+	versions = db.getVersions();
+	n_versions = db.getVersionsCount();
+	printf("n_versions %d\n", n_versions);
+	//printf("n_versions %d\n", db.n_versions);
+	//return 1;
+
 	//return 1;
 	//My.test();
 
 	//printf("\nmi id es : %d\n\n",My.getDeviceId("2012000413"));
 	
-	return 1;
+	//return 1;
 
 	if (std::regex_match("yanny", std::regex("([.]+)"))) {
 		std::cout << "string literal matched\n";
@@ -127,91 +134,71 @@ XT::InfoDB infoDB = {
 void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients) {
 
 	ftime(&start);
-	
+	printf("START \n\n");
 	if (Clients.count(client) > 0) {
 		puts("Receiving...");
-
 	} else {
 		puts("New Client...");
 		Clients[client].status = 1;
 		Clients[client].socket = client;
 		Clients[client].type = 2;
-
-
 	}
-	
-	/*
-	for (int i = 0; i < max_clients; i++) {
-		printf("cliente info: [%d]",clients[i]);
-
-	}
-
-	printf("\nmax: (%d) - index: (%d)\n",max_clients, index);
-	*/
-	/*
-	char fecha[25];//ctime devuelve 26 caracteres pero tambien se podría usar un puntero de char
-	time_t current_time;
-	current_time = time(NULL);
-	ctime(&current_time);
-	strcpy(fecha, ctime(&current_time));
-	//printf("%s\n", fecha);
-*/
-	printf("Inicio \n\n");
-	/*
-	puts("is conecting, wait please!");
-
-	char buffer[] = "yes";
-	send(client, buffer, 3, 0);
-*/
+	//send(client, "siiiiiiii", 10, 0);
 }
 
 void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
 
+	printf("Client HAND %d\n", client);
 
 	if (Clients.count(client) > 0) {
-		puts("Receiving...");
-	
+		//puts("Receiving...");
 	} else {
 		puts("New Client...");
 		Clients[client].status = 1;
 		Clients[client].socket = client;
 		Clients[client].type = 2;
-
-
 	}
-	
 
+	Keep_Alivestruct* sync_msg = (Keep_Alivestruct*)buffer;
+	bool isSync = false;
+	for (int i = 0; i < n_versions; i++) {
+		if (sync_msg->Keep_Alive_Header == versions[i]) {
+			isSync = true;
+			puts("Receiving sync...!!!");
+
+			char ID[12];
+			sprintf(ID, "%lu", sync_msg->Keep_Alive_Device_ID);
+			if (Devices.count(ID) > 0) {
+				
+			} else {
+				puts("New Device");
+				printf("Device_ID: %d\n", sync_msg->Keep_Alive_Device_ID);
+				printf("Header: %d\n", sync_msg->Keep_Alive_Header);
+				printf("ID: %d\n", sync_msg->Keep_Alive_ID);
+				Devices[ID].status = 1;
+				Devices[ID].socket = client;
+				Devices[ID].type = 1;
+				Clients[client].type = 1;
+			}
+			puts(buffer);
+			send(client, buffer, valread, 0);// return the sycm message
+			return;
+
+		}
+	}
+	if (!isSync) {
+
+		puts("new Message !!!!");
+		puts("****************");
+	}
+	send(client, buffer, valread, 0);
 	/*
-	ftime(&end);
-
-	printf("segundos %d\n", getDiff()/1000 );
-
-	ftime(&start);
-	*/
-	/*
-	char fecha[25];//ctime devuelve 26 caracteres pero tambien se podría usar un puntero de char
-	time_t current_time;
-	current_time = time(NULL);
-	ctime(&current_time);
-	strcpy(fecha, ctime(&current_time));
-	printf("%s\n", fecha);
-*/
-	//printf("Inicio [%s]\n\n", fecha);
-
-	//printf("Conectando ---> [%s]\n", buffer);
-
-	Keep_Alivestruct* st =(Keep_Alivestruct*)buffer;
-
-	
-
-	
-	char ID[12];
 	if (st->Keep_Alive_Header == 55248) {// IS A SYNC MESSAGE
 		puts("SYNC");
 		printf("Keep_Alive_Device_ID: %d\n", st->Keep_Alive_Device_ID);
 		printf("Keep_Alive_Header: %d\n", st->Keep_Alive_Header);
 		printf("Keep_Alive_ID: %d\n", st->Keep_Alive_ID);
-		sprintf(ID, "%lu", st->Keep_Alive_Device_ID);
+		
 		//clients[ID] = client;
 		
 		if (Devices.count(ID)>0) {
@@ -227,9 +214,9 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
 		send(client, buffer, valread, 0);// return the sycm message
 		return;
 	}
-	
+	*/
 	puts(buffer);
-	send(client, buffer, valread, 0);
+	//send(client, buffer, valread, 0);
 	MsgToClient *msg = (MsgToClient *)buffer;
 
 	
@@ -303,6 +290,12 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
 		}
 
 		break;
+	case '#':
+		//puts("borrar");
+		system("cls");
+
+
+		break;
 
 			
 	}
@@ -311,20 +304,7 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
 	
 	
 
-	if (buffer[0] == '*') {
-		char buffer_aux[] = "<<responding...>>";
-		send(client, buffer_aux, strlen(buffer_aux), 0);
-	} else {
-		//strcat((char*)buffer, "-yanny-");
-		puts("send...!");
-		
-		//send(*client, (char*)buffer, valread, 0);
-		Sleep(1000);
-		//send(*client, (char *)st, sizeof(st), 0);
-		char buffer4[] = "$WP+GETLOCATION=0000,?";
-		send(client, (char*)buffer4,strlen(buffer4), 0);
-		//send(client, buffer, valread, 0);
-	}
+	
 	
 	
 	

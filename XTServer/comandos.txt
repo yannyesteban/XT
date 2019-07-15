@@ -1,0 +1,2 @@
+$OK:COMMTYPE=4,+584128111118,04125697203,gprsweb.digitel.ve,,,bests.no-ip.net,3311,150,190.121.224.3
+$wp+COMMTYPE=0000,4,+584128111118,04125697203,gprsweb.digitel.ve,,,bests.no-ip.net,3311,150,190.121.224.3

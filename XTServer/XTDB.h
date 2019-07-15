@@ -54,6 +54,8 @@ namespace XT {
 	public:
 		std::map<int, InfoProto*> proto;
 
+		
+
 		int connect(InfoDB pInfo);
 		int test();
 
@@ -66,7 +68,8 @@ namespace XT {
 
 		void setDebug(bool);
 		bool getDebug();
-
+		int* getVersions();
+		int getVersionsCount();
 		~DB();
 
 	private:
@@ -82,6 +85,8 @@ namespace XT {
 		std::map<std::string, InfoClient*>::iterator clients_it;
 
 		bool debug = false;
+
+		
 
 	};
 }

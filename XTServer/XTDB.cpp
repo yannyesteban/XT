@@ -162,7 +162,7 @@ namespace XT {
 			p_stmt = cn->prepareStatement(
 				"SELECT sync_dec FROM devices_versions d GROUP BY sync_dec; "
 			);
-			int n_versions = 0;
+			n_versions = 0;
 			if (p_stmt->execute()) {
 				result = p_stmt->getResultSet();
 				
@@ -366,6 +366,15 @@ namespace XT {
 
 	DB::~DB() {
 		delete cn;
+	}
+
+	int* DB::getVersions() {
+		return versions;
+		
+	}
+
+	int DB::getVersionsCount() {
+		return n_versions;
 	}
 
 

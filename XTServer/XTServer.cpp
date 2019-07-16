@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
+#include <sstream>
 #include <iterator>
 #include <map> 
 #include <sys/timeb.h>
@@ -34,7 +35,7 @@ std::map<std::string, SOCKET> clients;
 std::map<std::string, SOCKET>::iterator it;
 
 void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients);
-void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread);
+void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, int index);
 
 struct timeb start, __end;
 
@@ -85,7 +86,7 @@ XT::InfoDB infoDB = {
 	//db.getVersions();
 	versions = db.getVersions();
 	n_versions = db.getVersionsCount();
-	printf("n_versions %d\n", n_versions);
+	//printf("n_versions %d\n", n_versions);
 	//printf("n_versions %d\n", db.n_versions);
 	//return 1;
 
@@ -142,13 +143,14 @@ void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, s
 		Clients[client].status = 1;
 		Clients[client].socket = client;
 		Clients[client].type = 2;
+		strcpy(Clients[client].device_id, "unknow");
 	}
 	//send(client, "siiiiiiii", 10, 0);
 }
 
-void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
+void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, int index) {
 
-	printf("Client HAND %d\n", client);
+	printf("Client HAND %d, index: %d\n", client, index);
 
 	if (Clients.count(client) > 0) {
 		//puts("Receiving...");
@@ -160,14 +162,16 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
 	}
 
 	Keep_Alivestruct* sync_msg = (Keep_Alivestruct*)buffer;
-	bool isSync = false;
+	
 	for (int i = 0; i < n_versions; i++) {
 		if (sync_msg->Keep_Alive_Header == versions[i]) {
-			isSync = true;
-			puts("Receiving sync...!!!");
+	
+			//puts("Receiving sync...!!!");
+			//printf("Receiving sync FROM %s\n", sync_msg->Keep_Alive_Device_ID);
 
 			char ID[12];
 			sprintf(ID, "%lu", sync_msg->Keep_Alive_Device_ID);
+			printf("Receiving sync FROM %s\n", ID);
 			if (Devices.count(ID) > 0) {
 				
 			} else {
@@ -179,18 +183,18 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
 				Devices[ID].socket = client;
 				Devices[ID].type = 1;
 				Clients[client].type = 1;
+				strcpy(Clients[client].device_id,(const char *)ID);
+				//sprintf((char *)Clients[client].device_id, "%lu", sync_msg->Keep_Alive_Device_ID);
 			}
-			puts(buffer);
+			//puts(buffer);
 			send(client, buffer, valread, 0);// return the sycm message
 			return;
 
 		}
 	}
-	if (!isSync) {
 
-		puts("new Message !!!!");
-		puts("****************");
-	}
+	puts("new Message !!!!");
+	puts("****************");
 	send(client, buffer, valread, 0);
 	/*
 	if (st->Keep_Alive_Header == 55248) {// IS A SYNC MESSAGE
@@ -216,6 +220,7 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
 	}
 	*/
 	puts(buffer);
+	
 	//send(client, buffer, valread, 0);
 	MsgToClient *msg = (MsgToClient *)buffer;
 
@@ -297,7 +302,60 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread) {
 
 		break;
 
+	default:
+		char* pch;
+
+		pch = strstr(buffer, (const char*)Clients[client].device_id);
+		if (pch) {
+			std::istringstream iss;
+			std::string   s = ((char *)buffer);
+			std::istringstream stream(s);
+			std::string to;
+			puts("***\n===\n***");
+			if (buffer != NULL)
+			{
+				while (std::getline(iss,  to, '\n')) {
+					cout << "y: " << to << endl;
+				}
+			}
+
+			std::stringstream ss1(buffer);
+			//std::string to;
+
+			if (buffer != NULL)
+			{
+				while (std::getline(ss1, to, '\n')) {
+					cout << "x: "<< to << endl;
+				}
+			}
+
+			puts("YES");
+			break;
+			std::smatch m;
+			std::string ss(buffer);
+
+			std::regex Pala("[0-9\.a-zA-ZñÑáéíóúÁÉÍÓÚäëïöüÄËÏÖÜ]+");
+			while (std::regex_search(ss, m, Pala)) {
+				//std::cout << "Pala\n";
+
+				for (auto x : m) {
+					std::cout << x << " ";
+				}
+				std::cout << std::endl;
+				ss = m.suffix().str();
+
+			}
+
+
+		} else {
+			puts("nada");
+		}
 			
+			
+
+		
+		break;
+
 	}
 	
 	return;

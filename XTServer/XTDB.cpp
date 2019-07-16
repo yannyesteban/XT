@@ -220,6 +220,81 @@ namespace XT {
 				delete result;
 			}
 
+			
+			
+			p_stmt = cn->prepareStatement(
+				"SELECT id_version, parameter FROM devices_format as d ORDER BY id_version, `order`; "
+			);
+
+			if (p_stmt->execute()) {
+				result = p_stmt->getResultSet();
+				char M[30][25] = {};
+				//puts("ONE");
+				//M[0] = "yanny";
+				//M[1] = "esteban";
+				
+				//strcpy((char*) M[1], "esteban");
+				//strcpy((char*) M[2], "nuñez");
+				//strcpy((char*) M[3], "jimenez");
+
+				int j = 0;
+				int lastVersion = 0;
+				int version;
+				while (result->next()) {
+					version = result->getInt("id_version");
+					
+					if (version != lastVersion) {
+						lastVersion = version;
+						j = 0;
+						Format * M = new Format;
+						
+						//format[lastVersion] = M;
+						format.insert(std::pair<int, Format*>(lastVersion, M));
+					}
+					
+					strcpy(format[lastVersion]->s[format[lastVersion]->n++], result->getString("parameter").c_str());
+					
+					//M[j++] = result->getString("parameter").c_str();
+					
+					//puts(M[j]);
+					//j++;
+					/*
+					InfoClient* client_x = new InfoClient({
+						result->getInt("id"),
+						result->getInt("id_version") });
+
+					clients.insert(std::pair<string, InfoClient*>(result->getString("unitid").c_str(), client_x));
+				*/
+				}
+				
+				if (debug) {
+
+					printf("\n*** Cache for Format Tracks ***\n\n");
+					printf("%12s", "Id Version");
+					printf("%16s\n", "Param");
+					
+					
+					int aux = 0;
+
+					for (std::map<int, Format*>::iterator it = format.begin(); it != format.end(); ++it) {
+						//puts("que");
+						//printf("%12d\n", it->first);
+						if (aux != it->first) {
+							printf("%12s", "/==========");
+							printf("%16s\n", "/=============");
+							aux = it->first;
+						}
+						for (int j = 0; j < it->second->n; j++) {
+							printf("%12d", it->first);
+							printf("%16s\n", it->second->s[j]);
+						}
+						
+					}
+				}
+
+				delete result;
+			}
+			
 			//result = stmt->executeQuery(query);
 
 			delete stmt;
@@ -362,6 +437,10 @@ namespace XT {
 
 	bool DB::getDebug() {
 		return debug;
+	}
+
+	int DB::saveTrack(const char*) {
+		return 0;
 	}
 
 	DB::~DB() {

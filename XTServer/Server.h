@@ -49,7 +49,7 @@ public:
 	void end();
 
 	void (*CallConection)(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients);
-	void (*CallMsgReceived)(SOCKET master, SOCKET client, char * buffer, int valread);
+	void (*CallMsgReceived)(SOCKET master, SOCKET client, char * buffer, int valread, int index);
 private:
 	WSADATA wsa;
 	SOCKET master;

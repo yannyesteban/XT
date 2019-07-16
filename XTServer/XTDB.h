@@ -5,6 +5,11 @@
 #include <mysql/jdbc.h>
 
 namespace XT {
+	
+	struct Format {
+		char s[30][20];
+		int n = 0;
+	};
 
 	struct InfoClient {
 		int id;
@@ -70,6 +75,8 @@ namespace XT {
 		bool getDebug();
 		int* getVersions();
 		int getVersionsCount();
+
+		int saveTrack(const char *);
 		~DB();
 
 	private:
@@ -83,6 +90,8 @@ namespace XT {
 
 		std::map<std::string, InfoClient*> clients;
 		std::map<std::string, InfoClient*>::iterator clients_it;
+
+		std::map<int, Format *> format;
 
 		bool debug = false;
 

@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
+#include <stdlib.h>
 #include <iostream>
 #include <sstream>
 #include <iterator>
@@ -41,7 +42,7 @@ struct timeb start, __end;
 
 int* versions;
 int n_versions;
-
+XT::DB db;
 int getDiff() {
 	return (int)(1000.0 * (__end.time - start.time) + (__end.millitm - start.millitm));
 }
@@ -60,7 +61,19 @@ int main()
 	auto mInfo = XT::Config::load("C:\\source\\cpp\\XT\\XTServer\\config.json");
 	//auto mInfo = XT::Config::getInfo();
 
-//
+	const char* s5 = "2012000413,20190717161915,-66.845906,10.500806,1,279,983.0,4,2,0.0,1,12.27,0.01,0,0,0,1";
+
+	list<string> field = XT::Tool::split(s5, ',');
+	std::string xx[30];
+	XT::Tool::split2(xx, s5);
+	for (int a = 0; a < 5; a++) {
+
+		printf("*** (%s) ****", xx[a].c_str());
+	}
+
+	return 1;
+
+
 printf("APP NAME: %s\n", mInfo.appname);
 printf("Version: %s \n", mInfo.version);
 printf("DB Name: %s\n", mInfo.db.name);
@@ -79,11 +92,18 @@ XT::InfoDB infoDB = {
 
 	*/
 
-	XT::DB db;
+	
 	db.setDebug(mInfo.debug);
 	db.connect(mInfo.db);
 	db.loadProtocols();
 	//db.getVersions();
+
+	if (mInfo.show_cache) {
+		puts("show cache");
+		system("pause");
+	}
+	//return 1;
+
 	versions = db.getVersions();
 	n_versions = db.getVersionsCount();
 	//printf("n_versions %d\n", n_versions);
@@ -96,6 +116,10 @@ XT::InfoDB infoDB = {
 	//printf("\nmi id es : %d\n\n",My.getDeviceId("2012000413"));
 	
 	//return 1;
+
+
+	
+
 
 	if (std::regex_match("yanny", std::regex("([.]+)"))) {
 		std::cout << "string literal matched\n";
@@ -149,7 +173,7 @@ void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, s
 }
 
 void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, int index) {
-
+	system("color 0F");//ejemplo 
 	printf("Client HAND %d, index: %d\n", client, index);
 
 	if (Clients.count(client) > 0) {
@@ -307,19 +331,21 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 
 		pch = strstr(buffer, (const char*)Clients[client].device_id);
 		if (pch) {
+			db.saveTracking((const char*)Clients[client].device_id, buffer);
+			break;
 			std::istringstream iss;
-			std::string   s = ((char *)buffer);
+			std::string   s = ((char*)buffer);
 			std::istringstream stream(s);
 			std::string to;
 			puts("***\n===\n***");
 			if (buffer != NULL)
 			{
-				while (std::getline(iss,  to, '\n')) {
+				while (std::getline(iss,  to)) {//, '\n'
 					cout << "y: " << to << endl;
 				}
 			}
 
-			std::stringstream ss1(buffer);
+			std::stringstream ss1((char*)buffer);
 			//std::string to;
 
 			if (buffer != NULL)

@@ -1,8 +1,11 @@
 #pragma once
-
+#include <stdlib.h>
+#include <iostream>
+#include <sstream>
 #include <stdlib.h>
 #include <iostream>
 #include <mysql/jdbc.h>
+#include "XTTool.h"
 
 namespace XT {
 	
@@ -76,7 +79,8 @@ namespace XT {
 		int* getVersions();
 		int getVersionsCount();
 
-		int saveTrack(const char *);
+		int saveTracking(const char* unitid,  const char* buffer);
+		int saveTrack(const char* unitid, int version, const char* buffer);
 		~DB();
 
 	private:

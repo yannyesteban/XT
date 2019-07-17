@@ -28,6 +28,7 @@ namespace XT {
 		info.max_clients = d["max_clients"].GetInt();
 		info.version = d["version"].GetString();
 		info.debug = d["debug"].GetBool();
+		info.show_cache = d["show_cache"].GetBool();
 
 		info.db.host = d["db"]["host"].GetString();
 		info.db.port = d["db"]["port"].GetString();

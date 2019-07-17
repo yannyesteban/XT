@@ -15,6 +15,7 @@ namespace XT {
 		unsigned int max_clients;
 		const char* version;
 		bool debug;
+		bool show_cache;
 		InfoDB db;
 
 

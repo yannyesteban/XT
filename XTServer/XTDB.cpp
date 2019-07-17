@@ -439,7 +439,67 @@ namespace XT {
 		return debug;
 	}
 
-	int DB::saveTrack(const char*) {
+	int DB::saveTracking(const char* unitid, const char* buffer) {
+
+		
+
+		printf("....%d...=%s..\n\n\n", clients[unitid]->id_version, unitid);
+		//system("color 0B");//ejemplo 
+
+		//std::istringstream iss;
+		std::string   string = ((char*)buffer);
+		std::stringstream ss((char*)buffer);
+		//std::istringstream stream(string);
+		std::string to;
+		
+				
+		//std::string to;
+
+		if (buffer != NULL)
+		{
+			while (std::getline(ss, to)) {//, '\n'
+				saveTrack(unitid, clients[unitid]->id_version, to.c_str());
+				//cout << "x: " << to << endl;
+			}
+		}
+
+
+		return 0;
+	}
+
+	int DB::saveTrack(const char* unitid, int version, const char* buffer) {
+		std::string s(buffer);
+
+		//s = "2012000413,20190717161915,-66.845906,10.500806,1,279,983.0,4,2,0.0,1,12.27,0.01,0,0,0,1";
+
+		list<string> field = XT::Tool::split(s, ',');
+
+		auto mm= XT::Tool::split2(buffer);
+		for (int a = 0; a < 5; a++) {
+
+			printf("*** (%s) ****", mm[a]);
+		}
+		return 1;
+		cout << s << endl;
+		int j = 0;
+		for (auto const& i : field) {
+			std::cout << "["<< i << "] --" << 
+				format[version]->s[j++]  <<
+				"\n";
+
+			
+
+		}
+		printf("N°%d \n\n", j);
+		
+		list<string> ::iterator it;
+		cout << s << endl;
+		for (it = field.begin(); it != field.end(); ++it) {
+			cout << *it << endl;
+		}
+
+		cout << "/******************/" << endl;
+		
 		return 0;
 	}
 

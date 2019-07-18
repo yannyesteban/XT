@@ -61,18 +61,7 @@ int main()
 	auto mInfo = XT::Config::load("C:\\source\\cpp\\XT\\XTServer\\config.json");
 	//auto mInfo = XT::Config::getInfo();
 
-	const char* s5 = "2012000413,20190717161915,-66.845906,10.500806,1,279,983.0,4,2,0.0,1,12.27,0.01,0,0,0,1";
-
-	list<string> field = XT::Tool::split(s5, ',');
-	std::string xx[30];
-	XT::Tool::split2(xx, s5);
-	for (int a = 0; a < 5; a++) {
-
-		printf("*** (%s) ****", xx[a].c_str());
-	}
-
-	return 1;
-
+	
 
 printf("APP NAME: %s\n", mInfo.appname);
 printf("Version: %s \n", mInfo.version);
@@ -173,7 +162,7 @@ void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, s
 }
 
 void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, int index) {
-	system("color 0F");//ejemplo 
+	//system("color 0F");//ejemplo 
 	printf("Client HAND %d, index: %d\n", client, index);
 
 	if (Clients.count(client) > 0) {
@@ -328,7 +317,8 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 
 	default:
 		char* pch;
-
+		puts("device ID es:");
+		puts((const char*)Clients[client].device_id);
 		pch = strstr(buffer, (const char*)Clients[client].device_id);
 		if (pch) {
 			db.saveTracking((const char*)Clients[client].device_id, buffer);

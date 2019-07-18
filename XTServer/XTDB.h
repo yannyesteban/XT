@@ -80,7 +80,7 @@ namespace XT {
 		int getVersionsCount();
 
 		int saveTracking(const char* unitid,  const char* buffer);
-		int saveTrack(const char* unitid, int version, const char* buffer);
+		int saveTrack(const char* unitid, int id, int version, const char* buffer);
 		~DB();
 
 	private:

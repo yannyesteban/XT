@@ -441,7 +441,6 @@ namespace XT {
 
 	int DB::saveTracking(const char* unitid, const char* buffer) {
 
-		
 
 		printf("....%d...=%s..\n\n\n", clients[unitid]->id_version, unitid);
 		//system("color 0B");//ejemplo 
@@ -451,14 +450,13 @@ namespace XT {
 		std::stringstream ss((char*)buffer);
 		//std::istringstream stream(string);
 		std::string to;
-		
-				
+					
 		//std::string to;
 
 		if (buffer != NULL)
 		{
 			while (std::getline(ss, to)) {//, '\n'
-				saveTrack(unitid, clients[unitid]->id_version, to.c_str());
+				saveTrack(unitid, clients[unitid]->id, clients[unitid]->id_version, to.c_str());
 				//cout << "x: " << to << endl;
 			}
 		}
@@ -467,29 +465,88 @@ namespace XT {
 		return 0;
 	}
 
-	int DB::saveTrack(const char* unitid, int version, const char* buffer) {
-		std::string s(buffer);
+	int DB::saveTrack(const char* unitid, int id, int version, const char* buffer) {
+		//std::string s(buffer);
 
 		//s = "2012000413,20190717161915,-66.845906,10.500806,1,279,983.0,4,2,0.0,1,12.27,0.01,0,0,0,1";
 
-		list<string> field = XT::Tool::split(s, ',');
+		
+		//list<string> field = XT::Tool::split(s, ',');
 
-		auto mm= XT::Tool::split2(buffer);
-		for (int a = 0; a < 5; a++) {
+		std::string  mm[30];
+		int n;
+		XT::Tool::getItem(mm,n, buffer);
+		int j = format[version]->n;
+		std::string query = "INSERT INTO tracking ";
+		std::string qfields = "device_cod";
+		//std::string qvalues = std::to_string(n);
 
-			printf("*** (%s) ****", mm[a]);
+		
+		char aux[10];
+		sprintf(aux, "'%d'", id);
+		std::string qvalues(aux);
+		
+		for (int x=0; x < j; x++) {
+
+			if (qfields != "") {
+				qfields += ",";
+				qvalues += ",";
+			}
+			qfields = qfields +"`"+ format[version]->s[x] +"`";
+			qvalues = qvalues + "'" + mm[x] + "'";
+			//cout << (x + 1) << ".- " << format[version]->s[x] << " = " << mm[x] << endl;
+			
 		}
+		query = query + "(" + qfields + ") VALUES (" + qvalues + ");";
+		
+		try {
+			std::cout << query;
+			sql::Statement* stmt;
+			sql::ResultSet* res;
+			stmt = cn->createStatement();
+			res =  stmt->executeQuery(query.c_str());
+			delete res;
+			delete stmt;
+	
+		} catch (sql::SQLException& e) {
+			cout << "# ERR: SQLException in " << __FILE__;
+			cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+			cout << "# ERR: " << e.what();
+			cout << " (MySQL error code: " << e.getErrorCode();
+			//cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+		}
+
 		return 1;
-		cout << s << endl;
-		int j = 0;
-		for (auto const& i : field) {
-			std::cout << "["<< i << "] --" << 
+
+		/*
+		std::map<int, XT::Format*>::iterator it;
+		it = format.find(version);
+		for (it = format.begin(); it != format.end(); ++it) {
+			cout << it->first <<
+
+				"  . " <<
+				it->second->n <<
+				
+				endl;
+		}
+*/
+
+		for (int a = 0; a < n; a++) {
+
+			printf("{.(%s).}", mm[a].c_str());
+		}
+		
+		//cout << s << endl;
+		j = 0;
+		for (auto const& z : mm) {
+			std::cout << "["<< z << "] --" << 
 				format[version]->s[j++]  <<
 				"\n";
 
 			
 
 		}
+		/*return 1;
 		printf("N°%d \n\n", j);
 		
 		list<string> ::iterator it;
@@ -498,8 +555,8 @@ namespace XT {
 			cout << *it << endl;
 		}
 
-		cout << "/******************/" << endl;
-		
+		cout << "/****************** /" << endl;
+		*/
 		return 0;
 	}
 

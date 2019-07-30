@@ -15,6 +15,8 @@
 #include "XTDB.h"
 #include "XTTool.h"
 
+
+
 struct InfoClient {
 	char device_id[10];
 	short int status=0;
@@ -51,6 +53,9 @@ int main()
 {
 	setlocale(LC_CTYPE, "Spanish");
 	system("cls");
+
+
+
 
 	//json myjson;
 	//XTTime my_time;

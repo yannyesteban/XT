@@ -440,7 +440,7 @@ namespace XT {
 	}
 
 	int DB::saveTracking(const char* unitid, const char* buffer) {
-
+		return 1;
 
 		printf("....%d...=%s..\n\n\n", clients[unitid]->id_version, unitid);
 		//system("color 0B");//ejemplo 
@@ -509,11 +509,12 @@ namespace XT {
 			delete stmt;
 	
 		} catch (sql::SQLException& e) {
-			cout << "# ERR: SQLException in " << __FILE__;
-			cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
-			cout << "# ERR: " << e.what();
-			cout << " (MySQL error code: " << e.getErrorCode();
-			//cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+			cout << endl << endl << "# ERR: SQLException in " << __FILE__;
+			cout << endl << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+			cout << endl << "# ERR: " << e.what();
+			cout << endl << " (MySQL error code: " << e.getErrorCode();
+			cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+			printf("\n\n\n\n");
 		}
 
 		return 1;

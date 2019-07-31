@@ -169,6 +169,7 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="json.h" />
     <ClInclude Include="Server.h" />
+    <ClInclude Include="XTConn.h" />
     <ClInclude Include="XTDB.h" />
     <ClInclude Include="XTTime.h" />
     <ClInclude Include="XTTool.h" />

@@ -442,7 +442,7 @@ namespace XT {
 	int DB::saveTracking(const char* unitid, const char* buffer) {
 		return 1;
 
-		printf("....%d...=%s..\n\n\n", clients[unitid]->id_version, unitid);
+		//printf("....%d...=%s..\n\n\n", clients[unitid]->id_version, unitid);
 		//system("color 0B");//ejemplo 
 
 		//std::istringstream iss;
@@ -563,6 +563,18 @@ namespace XT {
 
 	DB::~DB() {
 		delete cn;
+	}
+
+	bool DB::isSyncMsg(const char* buffer, char* id) {
+		
+		SyncMsg* sync_msg = (SyncMsg*)buffer;
+		for (int i = 0; i < n_versions; i++) {
+			if (sync_msg->Keep_Alive_Header == versions[i]) {
+				sprintf(id, "%lu", sync_msg->Keep_Alive_Device_ID);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	int* DB::getVersions() {

@@ -5,8 +5,11 @@
 #include <stdlib.h>
 #include <iostream>
 #include <mysql/jdbc.h>
-#include "XTTool.h"
 
+#include "GTTypes.h"
+
+#include "XTTool.h"
+using namespace GT;
 namespace XT {
 	
 	struct Format {
@@ -82,6 +85,9 @@ namespace XT {
 		int saveTracking(const char* unitid,  const char* buffer);
 		int saveTrack(const char* unitid, int id, int version, const char* buffer);
 		~DB();
+
+
+		bool isSyncMsg(const char* buffer, char* id);
 
 	private:
 		sql::Driver* driver;

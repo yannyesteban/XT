@@ -224,9 +224,9 @@ BOOL WINAPI keyboard(LPVOID param) {
 		printf("> ");
 		scanf("%s", message);
 
-		printf("mensaje enviado %s\n", message);
+		printf("mensaje enviado %s, %d\n", message, strlen(message));
 
-
+		//message[strlen(message)] = '\0';
 
 		//char MM[] = "*===Multi Hilo===";
 		//memset(&sendbuf, 0, sizeof(sendbuf));//clear the buffer

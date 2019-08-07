@@ -224,7 +224,7 @@ BOOL WINAPI keyboard(LPVOID param) {
 		printf("> ");
 		scanf("%s", message);
 
-		printf("mensaje enviado %s, %d\n", message, strlen(message));
+		printf("mensaje enviado %s // length[%d]\n", message, strlen(message));
 
 		//message[strlen(message)] = '\0';
 

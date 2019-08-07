@@ -1,4 +1,5 @@
 #include "Server.h"
+#include "GTTypes.h"
 
 Server::Server(ServerInfo _info): Info(_info) {
 	
@@ -102,6 +103,7 @@ void Server::_listen() {
 		//If something happened on the master socket , then its an incoming connection
 		if (FD_ISSET(master, &readfds)) {
 			if ((new_socket = accept(master, (struct sockaddr*) & address, (int*)& addrlen)) < 0) {
+				puts("error");
 				perror("accept");
 				exit(EXIT_FAILURE);
 			}
@@ -138,20 +140,25 @@ void Server::_listen() {
 					int error_code = WSAGetLastError();
 					if (error_code == WSAECONNRESET) {
 						//Somebody disconnected , get his details and print
-						printf("Host disconnected unexpectedly , ip %s , port %d \n", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+						printf(ANSI_COLOR_RED "Host disconnected unexpectedly, ip: %s, port: %d \n" ANSI_COLOR_RESET, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
 						//Close the socket and mark as 0 in list for reuse
 						closesocket(s);
 						clients[i] = 0;
 					} else {
-						printf("recv failed with error code : %d", error_code);
+						printf("recv failed with error code: %d", error_code);
 					}
+					puts("error 1");
+					CallClientError(master, s, buffer, valread, i, WSAGetLastError());
+					puts("error 2");
 				}
 				if (valread == 0) {
 					//Somebody disconnected , get his details and print
 					printf("Host disconnected , ip %s , port %d \n", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
 					//Close the socket and mark as 0 in list for reuse
+					
+					CallClientError(master, s, buffer, valread, i, WSAGetLastError());
 					closesocket(s);
 					clients[i] = 0;
 				} else {//Echo back the message that came in

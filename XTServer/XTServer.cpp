@@ -73,6 +73,11 @@ std::map<std::string, SOCKET>::iterator it;
 void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients);
 void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, int index);
 void _CallMsgReceived2(SOCKET master, SOCKET client, char* buffer, int valread, int index);
+
+void _CallClientError(SOCKET master, SOCKET client, char* buffer, int valread, int index, int error_code);
+void _CallClientError2(int index);
+
+
 struct timeb start, __end;
 
 int* versions;
@@ -82,8 +87,7 @@ int getDiff() {
 	return (int)(1000.0 * (__end.time - start.time) + (__end.millitm - start.millitm));
 }
 
-int main()
-{
+int main() {
 	setlocale(LC_CTYPE, "Spanish");
 	system("cls");
 
@@ -186,7 +190,10 @@ XT::InfoDB infoDB = {
 	info.max_clients = 30;
 	Server* s = new Server(info);
 	s->CallConection = _CallConection;
+	
 	s->CallMsgReceived = _CallMsgReceived;
+
+	s->CallClientError = _CallClientError;
 	s->init();
 }
 
@@ -206,11 +213,10 @@ void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, s
 	//send(client, "siiiiiiii", 10, 0);
 }
 
-
 void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, int index) {
 
 
-	printf(ANSI_COLOR_RESET ANSI_COLOR_YELLOW "\n\n%s\n\n" ANSI_COLOR_RESET, buffer);
+	//printf(ANSI_COLOR_RESET ANSI_COLOR_YELLOW "\n\n%s\n\n" ANSI_COLOR_RESET, buffer);
 
 	if (Clients.count(client) > 0) {
 		printf("Receiving from Client HAND %d, index: %d\n", client, index);
@@ -223,10 +229,10 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 	}
 	char id[12];
 	if (db.isSyncMsg(buffer, id)) {
-		printf(ANSI_COLOR_CYAN "---> Receiving sync FROM %s\n" ANSI_COLOR_RESET, id);
+		
 		//puts("sync.....................");
-		if (Devices.count(id) > 0) {
-
+		if (Devices.count(id) > 0 && Devices[id].type == 1) {
+			printf(ANSI_COLOR_CYAN "---> Receiving sync FROM %s\n" ANSI_COLOR_RESET, id);
 		} else {
 			/*
 			puts("New Device");
@@ -234,17 +240,24 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 			printf("Header: %d\n", sync_msg->Keep_Alive_Header);
 			printf("ID: %d\n", sync_msg->Keep_Alive_ID);
 			*/
-			Devices[id].status = 1;
-			Devices[id].socket = client;
-			Devices[id].type = 1;
-			Clients[client].type = 1;
-			strcpy(Clients[client].device_id, (const char*)id);
+			printf(ANSI_COLOR_GREEN "New Connection ---> Receiving sync FROM %s\n" ANSI_COLOR_RESET, id);
+			
+			
 			//sprintf((char *)Clients[client].device_id, "%lu", sync_msg->Keep_Alive_Device_ID);
 		}
-		//puts(buffer);
 
+
+		Devices[id].status = 1;
+		Devices[id].socket = client;
+		Devices[id].type = 1;
+		Clients[client].type = 1;
+		strcpy(Clients[client].device_id, (const char*)id);
+		//puts(buffer);
+		
+		printf(ANSI_COLOR_CYAN "return sync message...!\n[%s]\n" ANSI_COLOR_RESET, buffer);
 		
 		send(client, buffer, valread, 0);// return the sycm message
+		
 		return;
 	}
 
@@ -253,7 +266,7 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 	std::string to;
 	int i = 0;
 
-	send(client, buffer, valread, 0);
+	
 
 	//puts(buffer);
 	//buffer[valread] = '\0';
@@ -265,22 +278,31 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 	char g[11] = "";
 	switch (msg->token) {
 	case '*':
+
+		send(client, buffer, valread, 0);
+
 		memcpy_s(&g, sizeof(g), msg->id, sizeof(msg->id));
 
 		puts(g);
 		if (Devices.count(g) > 0) {
-			puts("enviando....");
-
-			send(Devices[g].socket, (char*)msg->cmd, strlen(msg->cmd), 0);
+			
+			printf(ANSI_COLOR_YELLOW "enviando to {%s}...\nSocket {%d}\nClient {%d}" ANSI_COLOR_RESET, 
+				g, Devices[g].socket,client);
+			int tbytes = send(Devices[g].socket, (char*)msg->cmd, strlen(msg->cmd), 0);
+			if (tbytes > 0) {
+				printf(ANSI_COLOR_BLUE "\n\tsend bytes %d\n" ANSI_COLOR_RESET, tbytes);
+			} else {
+				printf(ANSI_COLOR_RED "error sending bytes %d\n" ANSI_COLOR_RESET, tbytes);
+			}
 			break;
 		} else {
-			puts("no es devices");
+			puts("Devices not found...!");
 		}
 		break;
 
 
 	case '$':
-		printf("receiving data from device: %s\n\n", Clients[client].device_id);
+		printf(ANSI_COLOR_YELLOW ANSI_COLOR_BLUE_ "\nreceiving data from device: %s\n" ANSI_COLOR_RESET, Clients[client].device_id);
 		puts(buffer);
 		for (cliIT = Clients.begin(); cliIT != Clients.end(); ++cliIT) {
 
@@ -291,6 +313,7 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 		break;
 	case '#':
 	{
+		send(client, buffer, valread, 0);
 		GenMsg* gen_msg = (GenMsg*)buffer;
 
 		puts(gen_msg->msg);
@@ -298,7 +321,19 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 			system("cls");
 			puts("CLS");
 		}
+		if (strcmp(gen_msg->msg, "cli") == 0) {
+			
+			//Clients[client]
+			for (cliIT = Clients.begin(); cliIT != Clients.end(); ++cliIT) {
+				printf(ANSI_COLOR_GREEN "Clients %d\n" ANSI_COLOR_RESET, cliIT->first);
+				//send(cliIT->first, buffer, valread, 0);// return the sycm message
 
+			}
+			//for (std::map<SOCKET, InfoClient>::iterator it = Clients.begin; it != Clients.end(); it++) {
+				//printf(ANSI_COLOR_GREEN "Clients %d\n" ANSI_COLOR_RESET, it->first);
+			//}
+					
+		}
 	}
 
 
@@ -310,7 +345,7 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 		puts((const char*)Clients[client].device_id);
 		pch = strstr(buffer, (const char*)Clients[client].device_id);
 		if (pch) {
-			printf("Saving track from %s\n\n", Clients[client].device_id);
+			printf("Saving track from %s" ANSI_COLOR_RED "...." ANSI_COLOR_RESET, Clients[client].device_id);
 			db.saveTracking((const char*)Clients[client].device_id, buffer);
 		} else {
 
@@ -321,8 +356,8 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 		break;
 
 	}
-
-
+	puts(buffer);
+	return;
 	if (buffer != NULL) {
 		while (std::getline(ss, to)) {//, '\n'
 
@@ -334,6 +369,24 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 
 
 	
+}
+void _CallClientError2(int i) {
+
+}
+void _CallClientError(SOCKET master, SOCKET client, char* buffer, int valread, int index, int error_code) {
+	printf(ANSI_COLOR_GREEN "error\n" ANSI_COLOR_RESET);
+	for (std::map<std::string, InfoClient>::iterator it = Devices.begin(); it != Devices.end(); ++it) {
+	
+		if (it->second.socket == client) {
+			
+			printf(ANSI_COLOR_RED "error device ID %s\n" ANSI_COLOR_RESET, it->second.device_id);
+			printf(ANSI_COLOR_RED "error Client %d\n" ANSI_COLOR_RESET, client);
+		}
+
+	}
+	
+	return;
+
 }
 
 void _CallMsgReceived2(SOCKET master, SOCKET client, char* buffer, int valread, int index) {

@@ -50,6 +50,9 @@ public:
 
 	void (*CallConection)(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients);
 	void (*CallMsgReceived)(SOCKET master, SOCKET client, char * buffer, int valread, int index);
+
+	void (*CallClientError)(SOCKET master, SOCKET client, char* buffer, int valread, int index, int error_code);
+	void (*CallClientError2)(int index);
 private:
 	WSADATA wsa;
 	SOCKET master;

@@ -440,7 +440,7 @@ namespace XT {
 	}
 
 	int DB::saveTracking(const char* unitid, const char* buffer) {
-		return 1;
+		//return 1;
 
 		//printf("....%d...=%s..\n\n\n", clients[unitid]->id_version, unitid);
 		//system("color 0B");//ejemplo 
@@ -500,7 +500,7 @@ namespace XT {
 		query = query + "(" + qfields + ") VALUES (" + qvalues + ");";
 		
 		try {
-			std::cout << query;
+			//std::cout << query;
 			sql::Statement* stmt;
 			sql::ResultSet* res;
 			stmt = cn->createStatement();
@@ -509,12 +509,16 @@ namespace XT {
 			delete stmt;
 	
 		} catch (sql::SQLException& e) {
-			cout << endl << endl << "# ERR: SQLException in " << __FILE__;
-			cout << endl << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
-			cout << endl << "# ERR: " << e.what();
-			cout << endl << " (MySQL error code: " << e.getErrorCode();
-			cout << ", SQLState: " << e.getSQLState() << " )" << endl;
-			printf("\n\n\n\n");
+
+			if (1 == 0) {
+				cout << endl << endl << "# ERR: SQLException in " << __FILE__;
+				cout << endl << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+				cout << endl << "# ERR: " << e.what();
+				cout << endl << " (MySQL error code: " << e.getErrorCode();
+				cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+				printf("\n\n\n\n");
+			}
+			
 		}
 
 		return 1;
@@ -567,7 +571,10 @@ namespace XT {
 
 	bool DB::isSyncMsg(const char* buffer, char* id) {
 		
+
 		SyncMsg* sync_msg = (SyncMsg*)buffer;
+		printf(ANSI_COLOR_CYAN "---> verification of sync (%lu)..." ANSI_COLOR_RESET, sync_msg->Keep_Alive_Device_ID);
+		//puts(sync_msg->Keep_Alive_Device_ID));
 		for (int i = 0; i < n_versions; i++) {
 			if (sync_msg->Keep_Alive_Header == versions[i]) {
 				sprintf(id, "%lu", sync_msg->Keep_Alive_Device_ID);

@@ -1,5 +1,5 @@
 #include "Server.h"
-#include "GTTypes.h"
+
 
 Server::Server(ServerInfo _info): Info(_info) {
 	
@@ -108,13 +108,18 @@ void Server::_listen() {
 				exit(EXIT_FAILURE);
 			}
 			//inform user of socket number - used in send and receive commands
-			printf("New connection , socket fd is %d , ip is : %s , port : %d (?)\n", new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-
+			//printf("New connection , socket fd is %d , ip is : %s , port : %d (?)\n", new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+			GT::CnnInfo info;
+			info.address = inet_ntoa(address.sin_addr);
+			info.port = ntohs(address.sin_port);
+			info.tag = (char*)"yanny";
+		
+			//GT::CnnInfo info;
 			//add new socket to array of sockets
 			for (i = 0; i < max_clients; i++) {
 				if (clients[i] == 0) {
 					clients[i] = new_socket;
-					CallConection(master, new_socket, clients, i, max_clients);
+					CallConection(master, new_socket, clients, i, max_clients, info);
 					printf("Adding to list of sockets at index %d \n", i);
 					break;
 				}

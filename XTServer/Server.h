@@ -6,6 +6,7 @@
 #include <time.h>
 #include <sys/timeb.h>
 #include <stdint.h>
+#include "GTTypes.h"
 #pragma comment(lib, "ws2_32.lib") //Winsock Library
 
 /*
@@ -48,7 +49,7 @@ public:
 	void start();
 	void end();
 
-	void (*CallConection)(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients);
+	void (*CallConection)(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients, GT::CnnInfo info);
 	void (*CallMsgReceived)(SOCKET master, SOCKET client, char * buffer, int valread, int index);
 
 	void (*CallClientError)(SOCKET master, SOCKET client, char* buffer, int valread, int index, int error_code);

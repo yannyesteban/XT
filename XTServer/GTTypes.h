@@ -6,6 +6,13 @@
 namespace GT {
 
 	typedef struct {
+		char* address;
+		unsigned short port;
+		char* tag;
+
+	} CnnInfo;
+
+	typedef struct {
 		unsigned short Keep_Alive_Header;
 		unsigned short Keep_Alive_ID;
 		unsigned long Keep_Alive_Device_ID;

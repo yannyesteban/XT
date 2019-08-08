@@ -70,7 +70,7 @@ std::map<SOCKET, InfoClient>::iterator cliIT;
 std::map<std::string, SOCKET> clients;
 std::map<std::string, SOCKET>::iterator it;
 
-void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients);
+void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients, GT::CnnInfo info);
 void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, int index);
 void _CallMsgReceived2(SOCKET master, SOCKET client, char* buffer, int valread, int index);
 
@@ -197,10 +197,10 @@ XT::InfoDB infoDB = {
 	s->init();
 }
 
-void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients) {
+void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, short int max_clients, GT::CnnInfo info) {
 
 	ftime(&start);
-	printf("START \n\n");
+	//printf("START \n\n");
 	if (Clients.count(client) > 0) {
 		puts("Receiving...");
 	} else {
@@ -210,6 +210,7 @@ void _CallConection(SOCKET master, SOCKET client, SOCKET clients[], int index, s
 		Clients[client].type = 2;
 		strcpy(Clients[client].device_id, "unknow");
 	}
+	printf(ANSI_COLOR_GREEN "New connection , socket fd is %d , ip is : %s , port : %d, tag: %s\n" ANSI_COLOR_RESET, client, info.address, info.port, info.tag);
 	//send(client, "siiiiiiii", 10, 0);
 }
 
@@ -268,6 +269,42 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 
 	
 
+	
+	if (buffer != NULL) {
+		while (std::getline(ss, to)) {//, '\n'
+
+			printf("%d .- line", i++);
+
+			_CallMsgReceived2(master, client, (char*)to.c_str(), valread, index);
+		}
+	}
+
+
+	
+}
+void _CallClientError2(int i) {
+
+}
+void _CallClientError(SOCKET master, SOCKET client, char* buffer, int valread, int index, int error_code) {
+	printf(ANSI_COLOR_GREEN "error\n" ANSI_COLOR_RESET);
+	for (std::map<std::string, InfoClient>::iterator it = Devices.begin(); it != Devices.end(); ++it) {
+	
+		if (it->second.socket == client) {
+			
+			printf(ANSI_COLOR_RED "error device ID %s\n" ANSI_COLOR_RESET, it->second.device_id);
+			printf(ANSI_COLOR_RED "error Client %d\n" ANSI_COLOR_RESET, client);
+		}
+
+	}
+	
+	return;
+
+}
+
+void _CallMsgReceived2(SOCKET master, SOCKET client, char* buffer, int valread, int index) {
+	
+	
+	
 	//puts(buffer);
 	//buffer[valread] = '\0';
 	//send(client, buffer, valread, 0);
@@ -285,9 +322,9 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 
 		puts(g);
 		if (Devices.count(g) > 0) {
-			
-			printf(ANSI_COLOR_YELLOW "enviando to {%s}...\nSocket {%d}\nClient {%d}" ANSI_COLOR_RESET, 
-				g, Devices[g].socket,client);
+
+			printf(ANSI_COLOR_YELLOW "enviando to {%s}...\nSocket {%d}\nClient {%d}" ANSI_COLOR_RESET,
+				g, Devices[g].socket, client);
 			int tbytes = send(Devices[g].socket, (char*)msg->cmd, strlen(msg->cmd), 0);
 			if (tbytes > 0) {
 				printf(ANSI_COLOR_BLUE "\n\tsend bytes %d\n" ANSI_COLOR_RESET, tbytes);
@@ -322,7 +359,7 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 			puts("CLS");
 		}
 		if (strcmp(gen_msg->msg, "cli") == 0) {
-			
+
 			//Clients[client]
 			for (cliIT = Clients.begin(); cliIT != Clients.end(); ++cliIT) {
 				printf(ANSI_COLOR_GREEN "Clients %d\n" ANSI_COLOR_RESET, cliIT->first);
@@ -332,7 +369,7 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 			//for (std::map<SOCKET, InfoClient>::iterator it = Clients.begin; it != Clients.end(); it++) {
 				//printf(ANSI_COLOR_GREEN "Clients %d\n" ANSI_COLOR_RESET, it->first);
 			//}
-					
+
 		}
 	}
 
@@ -357,42 +394,6 @@ void _CallMsgReceived(SOCKET master, SOCKET client, char* buffer, int valread, i
 
 	}
 	puts(buffer);
-	return;
-	if (buffer != NULL) {
-		while (std::getline(ss, to)) {//, '\n'
-
-			//printf("%d .- line", i++);
-
-			_CallMsgReceived2(master, client, (char*)to.c_str(), valread, index);
-		}
-	}
-
-
-	
-}
-void _CallClientError2(int i) {
-
-}
-void _CallClientError(SOCKET master, SOCKET client, char* buffer, int valread, int index, int error_code) {
-	printf(ANSI_COLOR_GREEN "error\n" ANSI_COLOR_RESET);
-	for (std::map<std::string, InfoClient>::iterator it = Devices.begin(); it != Devices.end(); ++it) {
-	
-		if (it->second.socket == client) {
-			
-			printf(ANSI_COLOR_RED "error device ID %s\n" ANSI_COLOR_RESET, it->second.device_id);
-			printf(ANSI_COLOR_RED "error Client %d\n" ANSI_COLOR_RESET, client);
-		}
-
-	}
-	
-	return;
-
-}
-
-void _CallMsgReceived2(SOCKET master, SOCKET client, char* buffer, int valread, int index) {
-	
-	
-	
 	return;
 	
 	

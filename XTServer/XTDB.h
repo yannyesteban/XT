@@ -9,6 +9,7 @@
 #include "GTTypes.h"
 
 #include "XTTool.h"
+#include <map>
 using namespace GT;
 namespace XT {
 	

@@ -198,7 +198,7 @@ int Client::_listen() {
 	int iResult;
 	do {
 		
-		//puts("BYE.............");
+		puts(".");
 		memset(&recvbuf, 0, sizeof(recvbuf));//clear the buffer
 		iResult = recv(master, recvbuf, recvbuflen, 0);
 

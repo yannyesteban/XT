@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
 	if (argc == 2) {
 		info.host = argv[1];
 	} else {
-		info.host = (char*)"localhost";
+		info.host = (char*)"190.121.224.3";
 	}
 	
 	if (argc == 3) {
